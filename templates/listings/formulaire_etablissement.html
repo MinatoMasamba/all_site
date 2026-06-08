@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block titre %}{{ titre }} — Découvrir Kinshasa{% endblock %}
+
+{% block contenu %}
+<div class="encadre-formulaire" style="max-width:680px;">
+    <h1>🌼 {{ titre }}</h1>
+    <p><a href="{% url 'listings:mes_etablissements' %}">← Retour à mes établissements</a></p>
+
+    {% if etablissement %}
+        <p>
+            Statut actuel :
+            {% if etablissement.statut == "publie" %}
+                <strong>✅ Publié</strong> — visible dans la galerie
+            {% else %}
+                <strong>✏️ Brouillon</strong> — non visible publiquement
+            {% endif %}
+        </p>
+        <form method="post" action="{% url 'listings:publier_etablissement' slug=etablissement.slug %}">
+            {% csrf_token %}
+            {% if etablissement.statut == "publie" %}
+                <button class="bouton bouton-clair" type="submit">Repasser en brouillon</button>
+            {% else %}
+                <button class="bouton" type="submit">Publier la fiche</button>
+            {% endif %}
+        </form>
+        <hr style="margin: 1.4rem 0; border: none; border-top: 1px solid #f0e3d6;">
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <h3 style="color: var(--couleur-marron-fonce);">Informations générales</h3>
+        {{ form.as_p }}
+
+        {% if formset %}
+            <h3 style="color: var(--couleur-marron-fonce);">Photos de l'établissement</h3>
+            {{ formset.management_form }}
+            {% for sous_formulaire in formset %}
+                <div style="border:1px solid #f0e3d6; border-radius:10px; padding:0.8rem 1rem; margin-bottom:0.6rem;">
+                    {{ sous_formulaire.as_p }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <button class="bouton" type="submit">Enregistrer</button>
+    </form>
+</div>
+{% endblock %}

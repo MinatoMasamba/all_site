@@ -35,7 +35,15 @@
     </div>
 
     <p style="margin-top:1.5rem;">
-        <a class="bouton" href="#">Réserver une place</a>
+        {% if user.is_authenticated %}
+            {% if user.est_proprietaire or user.est_mediateur %}
+                <span style="color:#8a7868;">Les comptes propriétaire et médiateur ne peuvent pas réserver.</span>
+            {% else %}
+                <a class="bouton" href="{% url 'reservations:reserver' slug=etablissement.slug %}">Réserver une place</a>
+            {% endif %}
+        {% else %}
+            <a class="bouton" href="{% url 'accounts:connexion' %}?next={% url 'reservations:reserver' slug=etablissement.slug %}">Se connecter pour réserver</a>
+        {% endif %}
     </p>
 </section>
 {% endblock %}

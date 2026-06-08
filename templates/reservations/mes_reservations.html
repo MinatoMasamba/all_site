@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block titre %}Mes réservations — Découvrir Kinshasa{% endblock %}
+
+{% block contenu %}
+<section class="hero">
+    <h1>🌺 Mes réservations</h1>
+</section>
+
+{% if reservations %}
+<div class="detail-etablissement">
+    {% for reservation in reservations %}
+        <div class="fiche-info" style="margin-bottom:1rem;">
+            <h3 style="margin-top:0; color: var(--couleur-marron-fonce);">
+                <a href="{{ reservation.etablissement.get_absolute_url }}">{{ reservation.etablissement.nom }}</a>
+            </h3>
+            <p>📅 {{ reservation.date_prevue|date:"d/m/Y H:i" }} · 👥 {{ reservation.nombre_personnes }} personne(s)</p>
+            <p>Statut : <strong>{{ reservation.get_statut_display }}</strong> ·
+               Paiement : <strong>{{ reservation.get_mode_paiement_display }}</strong></p>
+
+            {% with paiement=reservation.paiement %}
+                {% if paiement %}
+                    <p>
+                        💰 {{ paiement.montant }} $ —
+                        <strong>{{ paiement.get_statut_display }}</strong>
+                    </p>
+                    {% if paiement.statut == "bloque" %}
+                        {% if paiement.confirme_par_client %}
+                            <p>✅ Vous avez confirmé votre présence. En attente de la confirmation de l'établissement.</p>
+                        {% else %}
+                            <form method="post" action="{% url 'reservations:confirmer_presence_client' reservation_id=reservation.id %}">
+                                {% csrf_token %}
+                                <button class="bouton bouton-clair" type="submit">Je confirme être arrivé(e) sur place</button>
+                            </form>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+            {% endwith %}
+        </div>
+    {% endfor %}
+</div>
+{% else %}
+    <p style="text-align:center; color:#8a7868; padding: 2rem;">Vous n'avez pas encore de réservation.</p>
+{% endif %}
+{% endblock %}

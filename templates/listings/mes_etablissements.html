@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block titre %}Mes établissements — Découvrir Kinshasa{% endblock %}
+
+{% block contenu %}
+<section class="hero">
+    <h1>🏨 Mes établissements</h1>
+    <p>Gérez vos fiches : description, tarifs, photos et publication.</p>
+    <p><a class="bouton" href="{% url 'listings:creer_etablissement' %}">+ Enregistrer un nouvel établissement</a></p>
+</section>
+
+{% if etablissements %}
+<div class="galerie">
+    {% for etablissement in etablissements %}
+        <a class="carte" href="{% url 'listings:modifier_etablissement' slug=etablissement.slug %}">
+            <div class="carte-image"
+                 {% with image=etablissement.image_principale %}
+                 {% if image %}style="background-image:url('{{ image.image.url }}');"{% endif %}
+                 {% endwith %}>
+                <span class="carte-categorie">
+                    {% if etablissement.statut == "publie" %}✅ Publié{% else %}✏️ Brouillon{% endif %}
+                </span>
+            </div>
+            <div class="carte-corps">
+                <h3>{{ etablissement.nom }}</h3>
+                <span class="carte-lieu">📍 {{ etablissement.commune.nom }} · {{ etablissement.categorie.nom }}</span>
+                <span class="bouton bouton-clair">Gérer la fiche</span>
+            </div>
+        </a>
+    {% endfor %}
+</div>
+{% else %}
+    <p style="text-align:center; color:#8a7868; padding: 2rem;">Vous n'avez encore enregistré aucun établissement.</p>
+{% endif %}
+{% endblock %}

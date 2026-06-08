@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block titre %}Réserver — {{ etablissement.nom }}{% endblock %}
+
+{% block contenu %}
+<div class="encadre-formulaire">
+    <h1>🌷 Réserver chez « {{ etablissement.nom }} »</h1>
+    <p class="intro">
+        Choisissez votre date et la façon dont vous souhaitez régler. Si vous payez en
+        ligne par Mobile Money, vos fonds sont conservés en sécurité par la plateforme :
+        ils ne sont reversés à l'établissement qu'une fois votre présence confirmée par
+        vous <strong>et</strong> par l'établissement.
+    </p>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="bouton" type="submit">Confirmer la demande de réservation</button>
+    </form>
+</div>
+{% endblock %}

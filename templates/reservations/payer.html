@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block titre %}Paiement Mobile Money — Découvrir Kinshasa{% endblock %}
+
+{% block contenu %}
+<div class="encadre-formulaire">
+    <h1>📱 Paiement Mobile Money</h1>
+    <p class="intro">
+        Réservation chez <strong>{{ reservation.etablissement.nom }}</strong> pour le
+        {{ reservation.date_prevue|date:"d/m/Y H:i" }}.<br><br>
+        🔒 Ce paiement est <strong>séquestré</strong> par la plateforme : l'argent ne sera
+        versé à l'établissement qu'après confirmation mutuelle de votre arrivée sur place.
+    </p>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="bouton" type="submit">Payer et bloquer les fonds en sécurité</button>
+    </form>
+</div>
+{% endblock %}

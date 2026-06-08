@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block titre %}Réservations reçues — Découvrir Kinshasa{% endblock %}
+
+{% block contenu %}
+<section class="hero">
+    <h1>📋 Réservations reçues</h1>
+    <p>Confirmez la présence de vos clients pour débloquer les paiements en ligne.</p>
+</section>
+
+{% if reservations %}
+<div class="detail-etablissement">
+    {% for reservation in reservations %}
+        <div class="fiche-info" style="margin-bottom:1rem;">
+            <h3 style="margin-top:0; color: var(--couleur-marron-fonce);">
+                {{ reservation.etablissement.nom }} — {{ reservation.utilisateur }}
+            </h3>
+            <p>📅 {{ reservation.date_prevue|date:"d/m/Y H:i" }} · 👥 {{ reservation.nombre_personnes }} personne(s)</p>
+            <p>Statut : <strong>{{ reservation.get_statut_display }}</strong> ·
+               Paiement : <strong>{{ reservation.get_mode_paiement_display }}</strong></p>
+            {% if reservation.note %}<p>📝 {{ reservation.note }}</p>{% endif %}
+
+            {% with paiement=reservation.paiement %}
+                {% if paiement %}
+                    <p>
+                        💰 {{ paiement.montant }} $ —
+                        <strong>{{ paiement.get_statut_display }}</strong>
+                    </p>
+                    {% if paiement.statut == "bloque" %}
+                        {% if paiement.confirme_par_etablissement %}
+                            <p>✅ Vous avez confirmé l'arrivée du client. En attente de sa confirmation pour libérer le paiement.</p>
+                        {% else %}
+                            <form method="post" action="{% url 'reservations:confirmer_presence_etablissement' reservation_id=reservation.id %}">
+                                {% csrf_token %}
+                                <button class="bouton bouton-clair" type="submit">Confirmer la présence du client</button>
+                            </form>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+            {% endwith %}
+        </div>
+    {% endfor %}
+</div>
+{% else %}
+    <p style="text-align:center; color:#8a7868; padding: 2rem;">Aucune réservation pour le moment.</p>
+{% endif %}
+{% endblock %}

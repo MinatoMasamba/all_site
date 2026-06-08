@@ -1,7 +1,31 @@
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Q
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.text import slugify
 
+from .forms import EtablissementForm, ImageEtablissementFormSet
 from .models import Categorie, Commune, Etablissement
+
+
+def _peut_gerer_des_etablissements(utilisateur):
+    return utilisateur.is_authenticated and (
+        utilisateur.est_proprietaire or utilisateur.est_mediateur or utilisateur.est_gestionnaire
+    )
+
+
+exige_gestionnaire_etablissement = user_passes_test(
+    _peut_gerer_des_etablissements,
+    login_url="accounts:connexion",
+)
+
+
+def _etablissements_geres_par(utilisateur):
+    if utilisateur.est_gestionnaire:
+        return Etablissement.objects.all()
+    return Etablissement.objects.filter(
+        Q(proprietaire=utilisateur) | Q(enregistre_par=utilisateur)
+    )
 
 
 def galerie(request):
@@ -41,3 +65,86 @@ def detail(request, slug):
         statut=Etablissement.Statut.PUBLIE,
     )
     return render(request, "listings/detail.html", {"etablissement": etablissement})
+
+
+@exige_gestionnaire_etablissement
+def mes_etablissements(request):
+    etablissements = _etablissements_geres_par(request.user).select_related("categorie", "commune")
+    return render(request, "listings/mes_etablissements.html", {"etablissements": etablissements})
+
+
+def _slug_disponible(nom, instance=None):
+    base = slugify(nom)
+    slug = base
+    compteur = 2
+    qs = Etablissement.objects.all()
+    if instance and instance.pk:
+        qs = qs.exclude(pk=instance.pk)
+    while qs.filter(slug=slug).exists():
+        slug = f"{base}-{compteur}"
+        compteur += 1
+    return slug
+
+
+@exige_gestionnaire_etablissement
+def creer_etablissement(request):
+    if request.method == "POST":
+        form = EtablissementForm(request.POST)
+        if form.is_valid():
+            etablissement = form.save(commit=False)
+            etablissement.slug = _slug_disponible(etablissement.nom)
+            if request.user.est_proprietaire:
+                etablissement.proprietaire = request.user
+            else:
+                etablissement.enregistre_par = request.user
+            etablissement.statut = Etablissement.Statut.BROUILLON
+            etablissement.save()
+            messages.success(
+                request,
+                "Votre établissement a été enregistré en brouillon. "
+                "Ajoutez maintenant des photos puis publiez la fiche.",
+            )
+            return redirect("listings:modifier_etablissement", slug=etablissement.slug)
+    else:
+        form = EtablissementForm()
+    return render(request, "listings/formulaire_etablissement.html", {
+        "form": form, "titre": "Enregistrer un établissement",
+    })
+
+
+@exige_gestionnaire_etablissement
+def modifier_etablissement(request, slug):
+    etablissement = get_object_or_404(_etablissements_geres_par(request.user), slug=slug)
+
+    if request.method == "POST":
+        form = EtablissementForm(request.POST, instance=etablissement)
+        formset = ImageEtablissementFormSet(request.POST, request.FILES, instance=etablissement)
+        if form.is_valid() and formset.is_valid():
+            form.save()
+            formset.save()
+            messages.success(request, "La fiche de l'établissement a été mise à jour.")
+            return redirect("listings:modifier_etablissement", slug=etablissement.slug)
+    else:
+        form = EtablissementForm(instance=etablissement)
+        formset = ImageEtablissementFormSet(instance=etablissement)
+
+    return render(request, "listings/formulaire_etablissement.html", {
+        "form": form,
+        "formset": formset,
+        "etablissement": etablissement,
+        "titre": f"Modifier « {etablissement.nom} »",
+    })
+
+
+@exige_gestionnaire_etablissement
+def publier_etablissement(request, slug):
+    etablissement = get_object_or_404(_etablissements_geres_par(request.user), slug=slug)
+    if request.method == "POST":
+        if etablissement.statut == Etablissement.Statut.PUBLIE:
+            etablissement.statut = Etablissement.Statut.BROUILLON
+            messages.info(request, "La fiche a été repassée en brouillon et n'est plus visible publiquement.")
+        else:
+            etablissement.statut = Etablissement.Statut.PUBLIE
+            messages.success(request, "La fiche est maintenant publiée et visible dans la galerie.")
+        etablissement.save(update_fields=["statut"])
+    return redirect("listings:modifier_etablissement", slug=etablissement.slug)

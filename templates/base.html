@@ -18,6 +18,15 @@
                 <a href="{% url 'accounts:inscription_proprietaire' %}">Enregistrer mon établissement</a>
                 <a href="{% url 'accounts:inscription_mediateur' %}">Devenir médiateur</a>
                 {% if user.is_authenticated %}
+                    {% if user.est_proprietaire or user.est_mediateur or user.est_gestionnaire %}
+                        <a href="{% url 'listings:mes_etablissements' %}">Mes établissements</a>
+                    {% endif %}
+                    {% if user.est_proprietaire or user.est_gestionnaire %}
+                        <a href="{% url 'reservations:reservations_etablissement' %}">Réservations reçues</a>
+                    {% endif %}
+                    {% if not user.est_proprietaire and not user.est_mediateur %}
+                        <a href="{% url 'reservations:mes_reservations' %}">Mes réservations</a>
+                    {% endif %}
                     <a href="{% url 'accounts:deconnexion' %}">Déconnexion ({{ user.username }})</a>
                 {% else %}
                     <a href="{% url 'accounts:connexion' %}">Connexion</a>
