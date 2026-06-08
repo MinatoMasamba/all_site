@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block titre %}Inscription — Découvrir Kinshasa{% endblock %}
+
+{% block contenu %}
+<div class="encadre-formulaire">
+    <h1>🌸 Créer un compte visiteur</h1>
+    <p class="intro">{{ message_bienvenue }}</p>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="bouton" type="submit">Créer mon compte</button>
+    </form>
+    <p style="margin-top:1rem;">Déjà inscrit ? <a href="{% url 'accounts:connexion' %}">Connectez-vous</a></p>
+</div>
+{% endblock %}

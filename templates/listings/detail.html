@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block titre %}{{ etablissement.nom }} — Découvrir Kinshasa{% endblock %}
+
+{% block contenu %}
+<section class="detail-etablissement">
+    <p><a href="{% url 'listings:galerie' %}">← Retour à la galerie</a></p>
+    <h1>{{ etablissement.nom }}</h1>
+    <p class="carte-lieu">📍 {{ etablissement.commune.nom }}{% if etablissement.adresse %} — {{ etablissement.adresse }}{% endif %} · {{ etablissement.categorie.nom }}</p>
+
+    {% if etablissement.images.all %}
+        <div class="detail-galerie">
+            {% for image in etablissement.images.all %}
+                <img src="{{ image.image.url }}" alt="{{ image.legende|default:etablissement.nom }}">
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if etablissement.description %}
+        <p>{{ etablissement.description|linebreaks }}</p>
+    {% endif %}
+
+    <div class="fiche-info">
+        <p><strong>Tarif indicatif :</strong>
+            {% if etablissement.prix_minimum %}
+                à partir de {{ etablissement.prix_minimum }} $
+                {% if etablissement.prix_maximum %}jusqu'à {{ etablissement.prix_maximum }} ${% endif %}
+            {% else %}
+                Non communiqué — contactez l'établissement
+            {% endif %}
+        </p>
+        {% if etablissement.telephone %}
+            <p><strong>Téléphone :</strong> {{ etablissement.telephone }}</p>
+        {% endif %}
+    </div>
+
+    <p style="margin-top:1.5rem;">
+        <a class="bouton" href="#">Réserver une place</a>
+    </p>
+</section>
+{% endblock %}

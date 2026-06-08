@@ -1,0 +1,253 @@
+/* ===== Thème "Fleurs de Kinshasa" : fond blanc, accents marron, motifs floraux ===== */
+
+:root {
+    --couleur-fond: #fffdfa;
+    --couleur-marron: #6b4226;
+    --couleur-marron-clair: #a9744f;
+    --couleur-marron-fonce: #4a2c19;
+    --couleur-creme: #f7efe6;
+    --couleur-texte: #3a2a1d;
+    --rayon: 14px;
+    --ombre: 0 4px 18px rgba(107, 66, 38, 0.12);
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--couleur-fond);
+    color: var(--couleur-texte);
+    background-image:
+        radial-gradient(circle at top left, rgba(169, 116, 79, 0.08) 0, transparent 35%),
+        radial-gradient(circle at bottom right, rgba(107, 66, 38, 0.07) 0, transparent 40%);
+    background-attachment: fixed;
+}
+
+a { color: var(--couleur-marron); text-decoration: none; }
+a:hover { color: var(--couleur-marron-fonce); }
+
+/* --- En-tête --- */
+.entete {
+    background: linear-gradient(120deg, var(--couleur-marron) 0%, var(--couleur-marron-clair) 100%);
+    color: #fff;
+    padding: 0.9rem 1.5rem;
+    box-shadow: var(--ombre);
+}
+
+.entete .conteneur {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1180px;
+    margin: 0 auto;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.logo {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #fff !important;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.logo .fleur { font-size: 1.3rem; }
+
+.nav-liens { display: flex; gap: 1.1rem; flex-wrap: wrap; align-items: center; }
+.nav-liens a { color: #fceee1 !important; font-weight: 500; }
+.nav-liens a:hover { color: #fff !important; text-decoration: underline; }
+
+.bouton {
+    display: inline-block;
+    background-color: var(--couleur-marron);
+    color: #fff !important;
+    padding: 0.55rem 1.3rem;
+    border-radius: 999px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+.bouton:hover { background-color: var(--couleur-marron-fonce); transform: translateY(-1px); color: #fff !important; }
+
+.bouton-clair {
+    background-color: #fff;
+    color: var(--couleur-marron) !important;
+    border: 2px solid var(--couleur-marron);
+}
+.bouton-clair:hover { background-color: var(--couleur-creme); }
+
+/* --- Section héro --- */
+.hero {
+    text-align: center;
+    padding: 3rem 1.5rem 2rem;
+    max-width: 880px;
+    margin: 0 auto;
+}
+.hero h1 {
+    font-size: 2.2rem;
+    color: var(--couleur-marron-fonce);
+    margin-bottom: 0.6rem;
+}
+.hero p { font-size: 1.05rem; color: #6a584a; }
+
+.fleur-separateur {
+    text-align: center;
+    color: var(--couleur-marron-clair);
+    font-size: 1.4rem;
+    letter-spacing: 1.2rem;
+    margin: 0.5rem 0 1.8rem;
+}
+
+/* --- Barre de recherche / filtres --- */
+.barre-recherche {
+    max-width: 1180px;
+    margin: 0 auto 2rem;
+    padding: 0 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    justify-content: center;
+}
+.barre-recherche input,
+.barre-recherche select {
+    padding: 0.6rem 1rem;
+    border: 1px solid var(--couleur-marron-clair);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--couleur-texte);
+    min-width: 180px;
+}
+
+/* --- Galerie --- */
+.galerie {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 1.5rem 3rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 1.5rem;
+}
+
+.carte {
+    background: #fff;
+    border-radius: var(--rayon);
+    overflow: hidden;
+    box-shadow: var(--ombre);
+    border: 1px solid #f0e3d6;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.carte:hover { transform: translateY(-4px); box-shadow: 0 10px 28px rgba(107, 66, 38, 0.18); }
+
+.carte-image {
+    height: 190px;
+    background-color: var(--couleur-creme);
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+.carte-categorie {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(107, 66, 38, 0.85);
+    color: #fff;
+    font-size: 0.78rem;
+    padding: 0.25rem 0.7rem;
+    border-radius: 999px;
+}
+
+.carte-corps { padding: 1rem 1.2rem 1.3rem; display: flex; flex-direction: column; gap: 0.35rem; flex: 1; }
+.carte-corps h3 { margin: 0; color: var(--couleur-marron-fonce); font-size: 1.15rem; }
+.carte-lieu { color: #8a7868; font-size: 0.9rem; }
+.carte-prix { color: var(--couleur-marron); font-weight: 700; margin-top: auto; }
+.carte-corps .bouton { align-self: flex-start; margin-top: 0.6rem; }
+
+/* --- Formulaires --- */
+.encadre-formulaire {
+    max-width: 480px;
+    margin: 2.5rem auto;
+    background: #fff;
+    border-radius: var(--rayon);
+    box-shadow: var(--ombre);
+    padding: 2rem;
+    border: 1px solid #f0e3d6;
+}
+.encadre-formulaire h1 { color: var(--couleur-marron-fonce); margin-top: 0; }
+.encadre-formulaire p.intro { color: #6a584a; margin-bottom: 1.3rem; }
+.encadre-formulaire form p { margin: 0.7rem 0; display: flex; flex-direction: column; gap: 0.3rem; }
+.encadre-formulaire label { font-weight: 600; color: var(--couleur-marron-fonce); }
+.encadre-formulaire input,
+.encadre-formulaire select,
+.encadre-formulaire textarea {
+    padding: 0.6rem 0.8rem;
+    border: 1px solid #e3d2c2;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+.encadre-formulaire .bouton { width: 100%; margin-top: 0.8rem; }
+
+/* --- Détail établissement --- */
+.detail-etablissement { max-width: 980px; margin: 0 auto; padding: 0 1.5rem 3rem; }
+.detail-galerie {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 0.8rem;
+    margin: 1.2rem 0;
+}
+.detail-galerie img { width: 100%; height: 180px; object-fit: cover; border-radius: 10px; }
+.fiche-info {
+    background: var(--couleur-creme);
+    border-radius: var(--rayon);
+    padding: 1.2rem 1.5rem;
+    margin-top: 1rem;
+}
+
+/* --- Bandeau abonnement --- */
+.bandeau-abonnement {
+    background: var(--couleur-creme);
+    text-align: center;
+    padding: 2.2rem 1.5rem;
+    margin-top: 2rem;
+}
+.bandeau-abonnement h2 { color: var(--couleur-marron-fonce); }
+.bandeau-abonnement form {
+    display: flex;
+    justify-content: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+.bandeau-abonnement input[type="email"] {
+    padding: 0.6rem 1rem;
+    border-radius: 999px;
+    border: 1px solid var(--couleur-marron-clair);
+    min-width: 260px;
+}
+
+/* --- Messages --- */
+.messages { max-width: 1180px; margin: 1rem auto 0; padding: 0 1.5rem; list-style: none; }
+.messages li {
+    padding: 0.7rem 1.1rem;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+.messages .success { background: #e8f3e2; color: #2f5d2a; }
+.messages .error { background: #fbe5e1; color: #8a2f22; }
+
+/* --- Pied de page --- */
+.pied-de-page {
+    background-color: var(--couleur-marron-fonce);
+    color: #f3e6da;
+    text-align: center;
+    padding: 1.6rem;
+    margin-top: 2rem;
+    font-size: 0.9rem;
+}
+.pied-de-page a { color: #fceee1; }

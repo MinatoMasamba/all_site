@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block titre %}Galerie des établissements — Découvrir Kinshasa{% endblock %}
+
+{% block contenu %}
+<section class="hero">
+    <h1>Trouvez où sortir, dormir et manger à Kinshasa</h1>
+    <p>Hôtels, restaurants, bars et sites touristiques : photos, quartier et tarifs indicatifs en un coup d'œil, pour explorer la ville en toute confiance.</p>
+</section>
+<div class="fleur-separateur">🌸 🌼 🌺 🌷 🌻</div>
+
+<form class="barre-recherche" method="get">
+    <input type="text" name="q" value="{{ terme }}" placeholder="Rechercher un nom, un quartier...">
+    <select name="categorie">
+        <option value="">Toutes les catégories</option>
+        {% for categorie in categories %}
+            <option value="{{ categorie.slug }}" {% if categorie.slug == categorie_active %}selected{% endif %}>{{ categorie.nom }}</option>
+        {% endfor %}
+    </select>
+    <select name="commune">
+        <option value="">Toutes les communes</option>
+        {% for commune in communes %}
+            <option value="{{ commune.id }}" {% if commune.id|stringformat:"s" == commune_active %}selected{% endif %}>{{ commune.nom }}</option>
+        {% endfor %}
+    </select>
+    <button class="bouton" type="submit">Rechercher</button>
+</form>
+
+{% if etablissements %}
+<div class="galerie">
+    {% for etablissement in etablissements %}
+        <a class="carte" href="{{ etablissement.get_absolute_url }}">
+            <div class="carte-image"
+                 {% with image=etablissement.image_principale %}
+                 {% if image %}style="background-image:url('{{ image.image.url }}');"{% endif %}
+                 {% endwith %}>
+                <span class="carte-categorie">{{ etablissement.categorie.nom }}</span>
+            </div>
+            <div class="carte-corps">
+                <h3>{{ etablissement.nom }}</h3>
+                <span class="carte-lieu">📍 {{ etablissement.commune.nom }}</span>
+                {% if etablissement.prix_minimum %}
+                    <span class="carte-prix">
+                        à partir de {{ etablissement.prix_minimum }} $
+                        {% if etablissement.prix_maximum %}— jusqu'à {{ etablissement.prix_maximum }} ${% endif %}
+                    </span>
+                {% endif %}
+                <span class="bouton bouton-clair">Voir la fiche</span>
+            </div>
+        </a>
+    {% endfor %}
+</div>
+{% else %}
+    <p style="text-align:center; color:#8a7868; padding: 2rem;">Aucun établissement ne correspond à votre recherche pour le moment.</p>
+{% endif %}
+{% endblock %}

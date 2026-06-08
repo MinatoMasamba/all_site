@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block titre %}Espace propriétaires — Découvrir Kinshasa{% endblock %}
+
+{% block contenu %}
+<div class="encadre-formulaire">
+    <h1>🏨 Enregistrer mon établissement</h1>
+    <p class="intro">{{ message_bienvenue }}</p>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="bouton" type="submit">Créer mon compte propriétaire</button>
+    </form>
+    <p style="margin-top:1rem;">Une fois connecté, vous pourrez ajouter la fiche de votre établissement, ses photos, sa description et ses tarifs.</p>
+</div>
+{% endblock %}

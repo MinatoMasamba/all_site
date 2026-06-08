@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block titre %}Connexion — Découvrir Kinshasa{% endblock %}
+
+{% block contenu %}
+<div class="encadre-formulaire">
+    <h1>🌷 Connexion</h1>
+    <p class="intro">Connectez-vous pour réserver, suivre vos offres et gérer votre établissement.</p>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="bouton" type="submit">Se connecter</button>
+    </form>
+    <p style="margin-top:1rem;">Pas encore de compte ? <a href="{% url 'accounts:inscription' %}">Inscrivez-vous</a></p>
+</div>
+{% endblock %}

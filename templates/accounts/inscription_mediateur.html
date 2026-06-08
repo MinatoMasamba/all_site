@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block titre %}Espace médiateurs — Découvrir Kinshasa{% endblock %}
+
+{% block contenu %}
+<div class="encadre-formulaire">
+    <h1>🤝 Devenir médiateur</h1>
+    <p class="intro">{{ message_bienvenue }}</p>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="bouton" type="submit">Créer mon compte médiateur</button>
+    </form>
+    <p style="margin-top:1rem;">Un membre de l'équipe validera votre compte avant que vous puissiez ajouter des établissements à la base de données.</p>
+</div>
+{% endblock %}
