@@ -60,6 +60,19 @@ a:hover { color: var(--couleur-marron-fonce); }
 .nav-liens a { color: #fceee1 !important; font-weight: 500; }
 .nav-liens a:hover { color: #fff !important; text-decoration: underline; }
 
+.lien-deconnexion {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    color: #fceee1;
+    font-weight: 500;
+    font-size: 1rem;
+    font-family: inherit;
+    cursor: pointer;
+}
+.lien-deconnexion:hover { color: #fff; text-decoration: underline; }
+
 .bouton {
     display: inline-block;
     background-color: var(--couleur-marron);

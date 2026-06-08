@@ -28,7 +28,10 @@
                     {% if not user.est_proprietaire and not user.est_mediateur %}
                         <a href="{% url 'reservations:mes_reservations' %}">Mes réservations</a>
                     {% endif %}
-                    <a href="{% url 'accounts:deconnexion' %}">Déconnexion ({{ user.username }})</a>
+                    <form method="post" action="{% url 'accounts:deconnexion' %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="lien-deconnexion">Déconnexion ({{ user.username }})</button>
+                    </form>
                 {% else %}
                     <a href="{% url 'accounts:connexion' %}">Connexion</a>
                     <a class="bouton bouton-clair" href="{% url 'accounts:inscription' %}">S'inscrire</a>
