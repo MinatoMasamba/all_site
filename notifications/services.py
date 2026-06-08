@@ -47,6 +47,49 @@ def envoyer_whatsapp(numero, message):
     )
 
 
+def envoyer_message_bienvenue(utilisateur):
+    """
+    Envoie un message de bienvenue chaleureux par email et WhatsApp juste
+    après l'inscription, pour accueillir le nouvel utilisateur et lui
+    annoncer qu'il recevra bientôt les offres et nouveautés de la plateforme.
+
+    Les erreurs d'envoi sont journalisées sans bloquer l'inscription : on ne
+    veut pas qu'un souci d'email ou de WhatsApp empêche quelqu'un de créer
+    son compte.
+    """
+    prenom = utilisateur.first_name or utilisateur.username
+    sujet = "🌸 Bienvenue dans la famille Découvrir Kinshasa !"
+    message = (
+        f"Bonjour {prenom}, et bienvenue ! 🌺\n\n"
+        "Quel plaisir de vous compter parmi nous ! Vous venez de rejoindre "
+        "Découvrir Kinshasa, la plateforme qui rassemble les meilleurs "
+        "hôtels, restaurants, bars et sites touristiques de la ville, avec "
+        "leurs photos, leurs quartiers et leurs tarifs, pour que vous "
+        "puissiez explorer Kinshasa en toute confiance — que ce soit pour "
+        "découvrir un nouvel endroit ou redécouvrir vos coins préférés.\n\n"
+        "À partir de maintenant, gardez l'œil ouvert : vous recevrez bientôt "
+        "ici même, par email et par WhatsApp, nos meilleures offres, "
+        "promotions et nouveautés, directement des établissements de la "
+        "ville. 🌷\n\n"
+        "Merci de votre confiance, installez-vous confortablement, et à très "
+        "vite pour de belles découvertes !\n\n"
+        "Avec toute notre chaleur,\n"
+        "🌸 L'équipe Découvrir Kinshasa"
+    )
+
+    if utilisateur.email:
+        try:
+            envoyer_email(utilisateur.email, sujet, message)
+        except Exception:
+            logger.exception("Échec de l'envoi de l'email de bienvenue à %s", utilisateur.email)
+
+    if utilisateur.telephone:
+        try:
+            envoyer_whatsapp(utilisateur.telephone, message)
+        except Exception:
+            logger.exception("Échec de l'envoi du message WhatsApp de bienvenue à %s", utilisateur.telephone)
+
+
 def diffuser_annonce(annonce):
     """
     Envoie une annonce (offre ou nouveauté) par email et WhatsApp à tous les

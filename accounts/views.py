@@ -3,6 +3,8 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 
+from notifications.services import envoyer_message_bienvenue
+
 from .forms import InscriptionForm, InscriptionMediateurForm, InscriptionProprietaireForm
 
 
@@ -20,6 +22,7 @@ def _inscription(request, form_class, template_name, message_bienvenue):
         if form.is_valid():
             utilisateur = form.save()
             login(request, utilisateur)
+            envoyer_message_bienvenue(utilisateur)
             return redirect("listings:galerie")
     else:
         form = form_class()
