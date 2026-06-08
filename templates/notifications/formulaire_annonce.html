@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block titre %}Nouvelle annonce — Découvrir Kinshasa{% endblock %}
+
+{% block contenu %}
+<div class="encadre-formulaire">
+    <h1>🌼 Rédiger une annonce</h1>
+    <p class="intro">
+        Cette annonce sera envoyée par email et WhatsApp à tous les abonnés
+        à la newsletter ainsi qu'aux utilisateurs inscrits ayant activé les
+        notifications.
+    </p>
+    <p><a href="{% url 'notifications:annonces' %}">← Retour aux annonces</a></p>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="bouton" type="submit">Enregistrer l'annonce</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block titre %}Annonces — Découvrir Kinshasa{% endblock %}
+
+{% block contenu %}
+<section class="hero">
+    <h1>📣 Offres et nouveautés</h1>
+    <p>Rédigez une annonce et diffusez-la par email et WhatsApp à tous les abonnés de la plateforme.</p>
+    <p><a class="bouton" href="{% url 'notifications:creer_annonce' %}">+ Rédiger une annonce</a></p>
+</section>
+
+{% if annonces %}
+<div class="detail-etablissement">
+    {% for annonce in annonces %}
+        <div class="fiche-info" style="margin-bottom:1rem;">
+            <h3 style="margin-top:0; color: var(--couleur-marron-fonce);">{{ annonce.titre }}</h3>
+            {% if annonce.etablissement %}<p>📍 {{ annonce.etablissement.nom }}</p>{% endif %}
+            <p>{{ annonce.message|linebreaksbr }}</p>
+            {% if annonce.est_envoyee %}
+                <p>✅ Diffusée le {{ annonce.envoyee_le|date:"d/m/Y H:i" }} —
+                   {{ annonce.nombre_emails_envoyes }} email(s), {{ annonce.nombre_whatsapp_envoyes }} message(s) WhatsApp.</p>
+            {% else %}
+                <form method="post" action="{% url 'notifications:diffuser' annonce_id=annonce.id %}">
+                    {% csrf_token %}
+                    <button class="bouton" type="submit">Diffuser maintenant par email et WhatsApp</button>
+                </form>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+{% else %}
+    <p style="text-align:center; color:#8a7868; padding: 2rem;">Aucune annonce pour le moment.</p>
+{% endif %}
+{% endblock %}

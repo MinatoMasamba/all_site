@@ -23,6 +23,7 @@
                     {% endif %}
                     {% if user.est_proprietaire or user.est_gestionnaire %}
                         <a href="{% url 'reservations:reservations_etablissement' %}">Réservations reçues</a>
+                        <a href="{% url 'notifications:annonces' %}">Annonces</a>
                     {% endif %}
                     {% if not user.est_proprietaire and not user.est_mediateur %}
                         <a href="{% url 'reservations:mes_reservations' %}">Mes réservations</a>
@@ -50,10 +51,11 @@
 
     <section class="bandeau-abonnement">
         <h2>🌼 Ne manquez aucune offre ni nouveauté</h2>
-        <p>Recevez par email les nouveaux établissements et les promotions des hôtels, restaurants, bars et sites touristiques de Kinshasa.</p>
+        <p>Recevez par email et WhatsApp les nouveaux établissements et les promotions des hôtels, restaurants, bars et sites touristiques de Kinshasa.</p>
         <form method="post" action="{% url 'notifications:abonnement' %}">
             {% csrf_token %}
             <input type="email" name="email" placeholder="Votre adresse email" required>
+            <input type="text" name="numero_whatsapp" placeholder="Numéro WhatsApp (optionnel), ex: +243800000000">
             <button class="bouton" type="submit">S'abonner aux offres</button>
         </form>
     </section>
