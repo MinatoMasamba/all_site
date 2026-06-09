@@ -22,10 +22,13 @@ from listings.models import Categorie, Commune, Etablissement, ImageEtablissemen
 
 def _slug_disponible(nom, instance=None):
     """
-    Retourne un slug unique pour le nom donné. Si le slug de base existe déjà
-    sur une autre entrée, ajoute un suffixe numérique.
+    Retourne un slug unique pour le nom donné. Si le slug de base est vide
+    (nom non-ASCII comme caractères chinois), utilise un fallback numérique.
+    Si le slug existe déjà sur une autre entrée, ajoute un suffixe numérique.
     """
     base = slugify(nom)
+    if not base:
+        base = f"etablissement"
     slug = base
     qs = Etablissement.objects.filter(slug=slug)
     if instance and instance.pk:
