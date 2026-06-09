@@ -53,7 +53,7 @@
                     <!-- Card image -->
                     <div class="relative h-48 bg-brun-100 overflow-hidden"
                          {% with image=etablissement.image_principale %}
-                         {% if image %}style="background-image:url('{{ image.image.url }}'); background-size:cover; background-position:center;"{% endif %}
+                         {% if image %}style="background-image:url('{{ image.src }}'); background-size:cover; background-position:center;"{% endif %}
                          {% endwith %}>
                         <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
                         <span class="absolute top-3 left-3 bg-brun-700/90 text-white text-xs font-semibold px-3 py-1 rounded-full backdrop-blur-sm">

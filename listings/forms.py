@@ -20,7 +20,7 @@ class EtablissementForm(forms.ModelForm):
 ImageEtablissementFormSet = inlineformset_factory(
     Etablissement,
     ImageEtablissement,
-    fields=["image", "legende"],
+    fields=["image", "url_image", "legende"],
     extra=0,
     max_num=20,
     can_delete=True,

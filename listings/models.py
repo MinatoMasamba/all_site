@@ -111,7 +111,11 @@ class ImageEtablissement(models.Model):
     etablissement = models.ForeignKey(
         Etablissement, on_delete=models.CASCADE, related_name="images"
     )
-    image = models.ImageField(upload_to="etablissements/%Y/%m/")
+    image = models.ImageField(upload_to="etablissements/%Y/%m/", blank=True)
+    url_image = models.URLField(
+        blank=True,
+        help_text="URL d'une image hébergée ailleurs (utilisée si aucun fichier n'est uploadé)",
+    )
     legende = models.CharField(max_length=200, blank=True)
     ordre = models.PositiveIntegerField(default=0)
 
@@ -122,3 +126,10 @@ class ImageEtablissement(models.Model):
 
     def __str__(self):
         return f"Image de {self.etablissement.nom}"
+
+    @property
+    def src(self):
+        """URL effective : fichier uploadé en priorité, sinon URL externe."""
+        if self.image:
+            return self.image.url
+        return self.url_image

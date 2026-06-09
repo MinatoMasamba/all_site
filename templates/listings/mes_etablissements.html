@@ -27,7 +27,7 @@
                    class="group bg-white rounded-2xl overflow-hidden shadow-fleur border border-brun-100 flex flex-col hover:-translate-y-1 hover:shadow-fleur-lg transition-all duration-200 no-underline">
                     <div class="relative h-44 bg-brun-100"
                          {% with image=etablissement.image_principale %}
-                         {% if image %}style="background-image:url('{{ image.image.url }}'); background-size:cover; background-position:center;"{% endif %}
+                         {% if image %}style="background-image:url('{{ image.src }}'); background-size:cover; background-position:center;"{% endif %}
                          {% endwith %}>
                         {% if not etablissement.image_principale %}
                             <div class="flex items-center justify-center h-full text-4xl opacity-20">🏛️</div>

@@ -128,52 +128,69 @@
                 <div class="pt-2">
                     <h3 class="text-base font-bold text-brun-700 pb-2 border-b border-brun-100 flex items-center justify-between">
                         <span>📷 Photos de l'établissement</span>
-                        <span class="text-xs font-normal text-brun-400">20 photos max</span>
+                        <span class="text-xs font-normal text-brun-400">20 photos max · fichier ou URL</span>
                     </h3>
 
                     {{ formset.management_form }}
 
-                    <!-- Grille des photos existantes + nouveaux slots -->
+                    <!-- Grille des photos -->
                     <div id="photo-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
 
                         {% for f in formset %}
-                            <div class="photo-slot relative rounded-xl border border-brun-200 overflow-hidden bg-brun-50 flex flex-col">
-                                {% if f.instance.pk and f.instance.image %}
-                                    <!-- Photo existante -->
-                                    <img src="{{ f.instance.image.url }}"
-                                         alt="Photo" class="w-full h-36 object-cover">
-                                    <div class="p-2 flex flex-col gap-1 flex-1">
-                                        <div class="hidden">{{ f.id }}</div>
-                                        <!-- champ image caché : garde l'image existante -->
-                                        <div class="hidden">{{ f.image }}</div>
-                                        <input type="text" name="{{ f.legende.html_name }}"
-                                               value="{{ f.legende.value|default:'' }}"
-                                               placeholder="Légende (optionnel)"
-                                               class="w-full px-2 py-1 rounded-lg border border-brun-200 bg-white text-brun-800 text-xs">
-                                        <label class="flex items-center gap-1.5 text-xs text-red-500 cursor-pointer mt-auto pt-1">
-                                            <input type="checkbox" name="{{ f.DELETE.html_name }}"
-                                                   class="w-3.5 h-3.5 accent-red-500">
-                                            Supprimer cette photo
-                                        </label>
-                                    </div>
+                            <div class="photo-slot rounded-xl border border-brun-200 overflow-hidden bg-brun-50 flex flex-col">
+
+                                <!-- Aperçu -->
+                                {% if f.instance.pk and f.instance.src %}
+                                    <img src="{{ f.instance.src }}" alt="Photo"
+                                         class="preview-img w-full h-36 object-cover">
                                 {% else %}
-                                    <!-- Slot vide (ne devrait pas arriver avec extra=0, mais sécurité) -->
                                     <div class="preview-wrap hidden flex-shrink-0">
                                         <img class="preview-img w-full h-36 object-cover">
                                     </div>
-                                    <div class="no-preview flex flex-col items-center justify-center h-36 text-brun-300">
+                                    <div class="no-preview flex flex-col items-center justify-center h-36 text-brun-300 cursor-pointer"
+                                         onclick="this.closest('.photo-slot').querySelector('input[type=file]').click()">
                                         <span class="text-3xl mb-1">🖼️</span>
-                                        <span class="text-xs">Sélectionner une photo</span>
-                                    </div>
-                                    <div class="p-2 flex flex-col gap-1">
-                                        <div class="hidden">{{ f.id }}</div>
-                                        {{ f.image }}
-                                        <input type="text" name="{{ f.legende.html_name }}"
-                                               value="{{ f.legende.value|default:'' }}"
-                                               placeholder="Légende (optionnel)"
-                                               class="w-full px-2 py-1 rounded-lg border border-brun-200 bg-white text-brun-800 text-xs">
+                                        <span class="text-xs">Cliquer pour choisir</span>
                                     </div>
                                 {% endif %}
+
+                                <!-- Champs -->
+                                <div class="p-2 flex flex-col gap-1.5 flex-1">
+                                    <div class="hidden">{{ f.id }}</div>
+
+                                    <!-- Onglets Fichier / URL -->
+                                    <div class="flex rounded-lg overflow-hidden border border-brun-200 text-xs font-semibold mb-1">
+                                        <button type="button" class="tab-file flex-1 py-1 bg-brun-700 text-white transition-colors"
+                                                onclick="switchTab(this,'file')">📁 Fichier</button>
+                                        <button type="button" class="tab-url flex-1 py-1 bg-white text-brun-500 hover:bg-brun-50 transition-colors"
+                                                onclick="switchTab(this,'url')">🔗 URL</button>
+                                    </div>
+
+                                    <!-- Panneau fichier -->
+                                    <div class="pane-file">{{ f.image }}</div>
+                                    <!-- Panneau URL -->
+                                    <div class="pane-url hidden">
+                                        <input type="url"
+                                               name="{{ f.url_image.html_name }}"
+                                               id="{{ f.url_image.id_for_label }}"
+                                               value="{{ f.url_image.value|default:'' }}"
+                                               placeholder="https://exemple.com/photo.jpg"
+                                               class="w-full px-2 py-1 rounded-lg border border-brun-200 bg-white text-brun-800 text-xs url-preview-input">
+                                    </div>
+
+                                    <input type="text" name="{{ f.legende.html_name }}"
+                                           value="{{ f.legende.value|default:'' }}"
+                                           placeholder="Légende (optionnel)"
+                                           class="w-full px-2 py-1 rounded-lg border border-brun-200 bg-white text-brun-800 text-xs">
+
+                                    {% if f.instance.pk %}
+                                        <label class="flex items-center gap-1.5 text-xs text-red-500 cursor-pointer mt-auto pt-1">
+                                            <input type="checkbox" name="{{ f.DELETE.html_name }}"
+                                                   class="w-3.5 h-3.5 accent-red-500">
+                                            Supprimer
+                                        </label>
+                                    {% endif %}
+                                </div>
                             </div>
                         {% endfor %}
 
@@ -182,13 +199,13 @@
                     <!-- Bouton ajouter -->
                     <button type="button" id="add-photo-btn"
                             class="mt-4 w-full flex items-center justify-center gap-2 border-2 border-dashed border-brun-300 hover:border-brun-500 rounded-xl py-3 text-brun-500 hover:text-brun-700 font-semibold text-sm transition-colors">
-                        <span class="text-xl leading-none">+</span> Ajouter des photos
+                        <span class="text-xl leading-none">+</span> Ajouter une photo
                     </button>
                 </div>
 
                 <!-- Template vide cloné par JS -->
                 <template id="empty-photo-tpl">
-                    <div class="photo-slot relative rounded-xl border border-brun-200 overflow-hidden bg-brun-50 flex flex-col">
+                    <div class="photo-slot rounded-xl border border-brun-200 overflow-hidden bg-brun-50 flex flex-col">
                         <div class="preview-wrap hidden flex-shrink-0">
                             <img class="preview-img w-full h-36 object-cover">
                         </div>
@@ -197,86 +214,147 @@
                             <span class="text-3xl mb-1">🖼️</span>
                             <span class="text-xs">Cliquer pour choisir</span>
                         </div>
-                        <div class="p-2 flex flex-col gap-1 hidden-fields">
-                            <!-- Les champs seront injectés par JS avec le bon préfixe -->
+                        <div class="p-2 flex flex-col gap-1.5 flex-1 tpl-fields">
+                            <!-- champs injectés par JS -->
                         </div>
                     </div>
                 </template>
 
-                <!-- Template des champs du formulaire vide Django (avec __prefix__) -->
+                <!-- Champs Django vides (avec __prefix__) pour clonage JS -->
                 <div id="empty-form-fields" class="hidden">
                     {{ formset.empty_form.id }}
                     {{ formset.empty_form.image }}
-                    <input type="text" name="{{ formset.empty_form.legende.html_name }}"
+                    <input type="url"
+                           name="{{ formset.empty_form.url_image.html_name }}"
+                           id="{{ formset.empty_form.url_image.id_for_label }}"
+                           placeholder="https://exemple.com/photo.jpg"
+                           class="w-full px-2 py-1 rounded-lg border border-brun-200 bg-white text-brun-800 text-xs url-preview-input">
+                    <input type="text"
+                           name="{{ formset.empty_form.legende.html_name }}"
                            placeholder="Légende (optionnel)"
                            class="w-full px-2 py-1 rounded-lg border border-brun-200 bg-white text-brun-800 text-xs">
                 </div>
 
                 <script>
                 (function () {
-                    const grid      = document.getElementById('photo-grid');
-                    const tpl       = document.getElementById('empty-photo-tpl');
-                    const srcFields = document.getElementById('empty-form-fields');
-                    const totalIn   = document.querySelector('[name$="-TOTAL_FORMS"]');
-                    const btn       = document.getElementById('add-photo-btn');
+                    const grid    = document.getElementById('photo-grid');
+                    const tpl     = document.getElementById('empty-photo-tpl');
+                    const src     = document.getElementById('empty-form-fields');
+                    const totalIn = document.querySelector('[name$="-TOTAL_FORMS"]');
+                    const btn     = document.getElementById('add-photo-btn');
 
-                    function getPrefix() {
-                        /* Déduit le préfixe depuis le champ TOTAL_FORMS, ex: "form" dans "form-TOTAL_FORMS" */
-                        return totalIn.name.replace('-TOTAL_FORMS', '');
+                    /* ---- Onglets Fichier / URL ---- */
+                    function switchTab(btn, mode) {
+                        const slot     = btn.closest('.photo-slot');
+                        const paneFile = slot.querySelector('.pane-file');
+                        const paneUrl  = slot.querySelector('.pane-url');
+                        const tabFile  = slot.querySelector('.tab-file');
+                        const tabUrl   = slot.querySelector('.tab-url');
+                        if (mode === 'file') {
+                            paneFile && paneFile.classList.remove('hidden');
+                            paneUrl  && paneUrl.classList.add('hidden');
+                            tabFile.classList.add('bg-brun-700','text-white');
+                            tabFile.classList.remove('bg-white','text-brun-500');
+                            tabUrl.classList.add('bg-white','text-brun-500');
+                            tabUrl.classList.remove('bg-brun-700','text-white');
+                        } else {
+                            paneUrl  && paneUrl.classList.remove('hidden');
+                            paneFile && paneFile.classList.add('hidden');
+                            tabUrl.classList.add('bg-brun-700','text-white');
+                            tabUrl.classList.remove('bg-white','text-brun-500');
+                            tabFile.classList.add('bg-white','text-brun-500');
+                            tabFile.classList.remove('bg-brun-700','text-white');
+                        }
+                    }
+                    /* Expose globalement pour les onclick inline */
+                    window.switchTab = switchTab;
+
+                    /* ---- Aperçu fichier ---- */
+                    function setupFilePreview(slot) {
+                        const fi = slot.querySelector('input[type="file"]');
+                        if (!fi) return;
+                        fi.addEventListener('change', function () {
+                            if (!this.files?.[0]) return;
+                            const reader = new FileReader();
+                            reader.onload = e => showPreview(slot, e.target.result);
+                            reader.readAsDataURL(this.files[0]);
+                        });
                     }
 
-                    function setupPreview(slot) {
-                        const fileInput = slot.querySelector('input[type="file"]');
-                        if (!fileInput) return;
-                        /* Rend le slot entier cliquable pour sélectionner un fichier */
-                        const noPreview = slot.querySelector('.no-preview');
-                        if (noPreview) noPreview.onclick = () => fileInput.click();
+                    /* ---- Aperçu URL ---- */
+                    function setupUrlPreview(slot) {
+                        const ui = slot.querySelector('.url-preview-input');
+                        if (!ui) return;
+                        let timer;
+                        ui.addEventListener('input', function () {
+                            clearTimeout(timer);
+                            const val = this.value.trim();
+                            timer = setTimeout(() => { if (val) showPreview(slot, val); }, 600);
+                        });
+                    }
 
-                        fileInput.addEventListener('change', function () {
-                            const wrap = slot.querySelector('.preview-wrap');
-                            const img  = slot.querySelector('.preview-img');
-                            const np   = slot.querySelector('.no-preview');
-                            if (this.files && this.files[0]) {
-                                const reader = new FileReader();
-                                reader.onload = e => {
-                                    img.src = e.target.result;
-                                    wrap.classList.remove('hidden');
-                                    if (np) np.classList.add('hidden');
-                                };
-                                reader.readAsDataURL(this.files[0]);
+                    function showPreview(slot, url) {
+                        const wrap = slot.querySelector('.preview-wrap');
+                        const img  = slot.querySelector('.preview-img');
+                        const np   = slot.querySelector('.no-preview');
+                        if (img) img.src = url;
+                        if (wrap) wrap.classList.remove('hidden');
+                        if (np)   np.classList.add('hidden');
+                    }
+
+                    /* ---- Ajouter un slot ---- */
+                    function addSlot() {
+                        const idx  = parseInt(totalIn.value);
+                        const slot = tpl.content.cloneNode(true).querySelector('.photo-slot');
+                        const dest = slot.querySelector('.tpl-fields');
+
+                        /* Injecter les onglets */
+                        dest.insertAdjacentHTML('beforeend',
+                            `<div class="flex rounded-lg overflow-hidden border border-brun-200 text-xs font-semibold mb-1">
+                                <button type="button" class="tab-file flex-1 py-1 bg-brun-700 text-white transition-colors" onclick="switchTab(this,'file')">📁 Fichier</button>
+                                <button type="button" class="tab-url flex-1 py-1 bg-white text-brun-500 hover:bg-brun-50 transition-colors" onclick="switchTab(this,'url')">🔗 URL</button>
+                             </div>`);
+
+                        /* Injecter les champs avec le bon préfixe */
+                        const children = Array.from(src.children);
+                        children.forEach((child, ci) => {
+                            const clone = child.cloneNode(true);
+                            ['name','id','for'].forEach(attr => {
+                                const v = clone.getAttribute(attr);
+                                if (v) clone.setAttribute(attr, v.replace('__prefix__', idx));
+                            });
+                            /* Fichier dans pane-file, URL dans pane-url, reste direct */
+                            if (clone.type === 'file') {
+                                const pf = document.createElement('div');
+                                pf.className = 'pane-file';
+                                pf.appendChild(clone);
+                                dest.appendChild(pf);
+                            } else if (clone.classList.contains('url-preview-input')) {
+                                const pu = document.createElement('div');
+                                pu.className = 'pane-url hidden';
+                                pu.appendChild(clone);
+                                dest.appendChild(pu);
+                            } else {
+                                dest.appendChild(clone);
                             }
                         });
-                    }
 
-                    function addSlot() {
-                        const prefix = getPrefix();
-                        const idx    = parseInt(totalIn.value);
-                        const slot   = tpl.content.cloneNode(true).querySelector('.photo-slot');
-                        const dest   = slot.querySelector('.hidden-fields');
-
-                        /* Clone et renomme les champs depuis le template Django */
-                        srcFields.querySelectorAll('[name],[id]').forEach(src => {
-                            const clone = src.cloneNode(true);
-                            ['name', 'id', 'for'].forEach(attr => {
-                                if (clone.getAttribute(attr)) {
-                                    clone.setAttribute(attr,
-                                        clone.getAttribute(attr).replace('__prefix__', idx));
-                                }
-                            });
-                            dest.appendChild(clone);
-                        });
-                        dest.classList.remove('hidden-fields');
-                        dest.classList.add('p-2', 'flex', 'flex-col', 'gap-1');
-
-                        setupPreview(slot);
+                        setupFilePreview(slot);
+                        setupUrlPreview(slot);
                         grid.appendChild(slot);
                         totalIn.value = idx + 1;
                     }
 
                     btn.addEventListener('click', addSlot);
 
-                    /* Setup preview pour slots éventuellement déjà présents (extra > 0) */
-                    grid.querySelectorAll('.photo-slot').forEach(setupPreview);
+                    /* Init pour slots existants */
+                    grid.querySelectorAll('.photo-slot').forEach(slot => {
+                        setupFilePreview(slot);
+                        setupUrlPreview(slot);
+                        /* Si url_image est déjà renseignée, basculer l'onglet sur URL */
+                        const ui = slot.querySelector('.url-preview-input');
+                        if (ui && ui.value) switchTab(slot.querySelector('.tab-url'), 'url');
+                    });
                 })();
                 </script>
             {% endif %}
