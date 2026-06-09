@@ -25,16 +25,22 @@
         <form class="flex flex-wrap gap-2 items-center justify-center" method="get">
             <input type="text" name="q" value="{{ terme }}" placeholder="🔍  Nom, quartier..."
                    class="flex-1 min-w-[180px] max-w-xs px-4 py-2 rounded-full border border-brun-200 bg-brun-50 text-brun-900 placeholder-brun-400 text-sm focus:border-brun-500 focus:bg-white transition-colors">
-            <select name="categorie" class="flex-1 min-w-[160px] max-w-[200px] px-4 py-2 rounded-full border border-brun-200 bg-brun-50 text-brun-800 text-sm focus:border-brun-500 focus:bg-white transition-colors">
-                <option value="">Toutes les catégories</option>
+            <select name="categorie" class="flex-1 min-w-[150px] max-w-[185px] px-4 py-2 rounded-full border border-brun-200 bg-brun-50 text-brun-800 text-sm focus:border-brun-500 focus:bg-white transition-colors">
+                <option value="">Toutes catégories</option>
                 {% for categorie in categories %}
                     <option value="{{ categorie.slug }}" {% if categorie.slug == categorie_active %}selected{% endif %}>{{ categorie.nom }}</option>
                 {% endfor %}
             </select>
-            <select name="commune" class="flex-1 min-w-[160px] max-w-[200px] px-4 py-2 rounded-full border border-brun-200 bg-brun-50 text-brun-800 text-sm focus:border-brun-500 focus:bg-white transition-colors">
-                <option value="">Toutes les communes</option>
+            <select name="commune" class="flex-1 min-w-[150px] max-w-[185px] px-4 py-2 rounded-full border border-brun-200 bg-brun-50 text-brun-800 text-sm focus:border-brun-500 focus:bg-white transition-colors">
+                <option value="">Toutes communes</option>
                 {% for commune in communes %}
                     <option value="{{ commune.id }}" {% if commune.id|stringformat:"s" == commune_active %}selected{% endif %}>{{ commune.nom }}</option>
+                {% endfor %}
+            </select>
+            <select name="prix" class="flex-1 min-w-[150px] max-w-[185px] px-4 py-2 rounded-full border border-brun-200 bg-brun-50 text-brun-800 text-sm focus:border-brun-500 focus:bg-white transition-colors">
+                <option value="">Tous les prix</option>
+                {% for valeur, libelle in tranches_prix %}
+                    <option value="{{ valeur }}" {% if valeur == prix_actif %}selected{% endif %}>{{ libelle }}</option>
                 {% endfor %}
             </select>
             <button type="submit" class="bg-brun-700 hover:bg-brun-800 text-white font-semibold px-5 py-2 rounded-full transition-colors text-sm shadow-sm">
@@ -43,6 +49,46 @@
         </form>
     </div>
 </div>
+
+<!-- ===== ACTIVE FILTERS CHIPS ===== -->
+{% if terme or categorie_active or commune_active or prix_actif %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 pt-4 flex flex-wrap gap-2 items-center">
+    <span class="text-brun-500 text-xs font-semibold uppercase tracking-wide">Filtres actifs :</span>
+    {% if terme %}
+        <a href="?{% if categorie_active %}categorie={{ categorie_active }}&{% endif %}{% if commune_active %}commune={{ commune_active }}&{% endif %}{% if prix_actif %}prix={{ prix_actif }}{% endif %}"
+           class="flex items-center gap-1 bg-brun-100 hover:bg-red-50 border border-brun-200 hover:border-red-200 text-brun-700 hover:text-red-600 text-xs font-medium px-3 py-1 rounded-full transition-colors">
+            🔍 {{ terme }} ×
+        </a>
+    {% endif %}
+    {% if categorie_active %}
+        {% for cat in categories %}{% if cat.slug == categorie_active %}
+        <a href="?{% if terme %}q={{ terme }}&{% endif %}{% if commune_active %}commune={{ commune_active }}&{% endif %}{% if prix_actif %}prix={{ prix_actif }}{% endif %}"
+           class="flex items-center gap-1 bg-brun-700 hover:bg-red-600 text-white text-xs font-medium px-3 py-1 rounded-full transition-colors">
+            {{ cat.nom }} ×
+        </a>
+        {% endif %}{% endfor %}
+    {% endif %}
+    {% if commune_active %}
+        {% for com in communes %}{% if com.id|stringformat:"s" == commune_active %}
+        <a href="?{% if terme %}q={{ terme }}&{% endif %}{% if categorie_active %}categorie={{ categorie_active }}&{% endif %}{% if prix_actif %}prix={{ prix_actif }}{% endif %}"
+           class="flex items-center gap-1 bg-brun-500 hover:bg-red-600 text-white text-xs font-medium px-3 py-1 rounded-full transition-colors">
+            📍 {{ com.nom }} ×
+        </a>
+        {% endif %}{% endfor %}
+    {% endif %}
+    {% if prix_actif %}
+        {% for valeur, libelle in tranches_prix %}{% if valeur == prix_actif %}
+        <a href="?{% if terme %}q={{ terme }}&{% endif %}{% if categorie_active %}categorie={{ categorie_active }}&{% endif %}{% if commune_active %}commune={{ commune_active }}{% endif %}"
+           class="flex items-center gap-1 bg-emerald-600 hover:bg-red-600 text-white text-xs font-medium px-3 py-1 rounded-full transition-colors">
+            💰 {{ libelle }} ×
+        </a>
+        {% endif %}{% endfor %}
+    {% endif %}
+    <a href="{% url 'listings:galerie' %}" class="text-brun-400 hover:text-red-500 text-xs underline transition-colors">
+        Effacer tout
+    </a>
+</div>
+{% endif %}
 
 <!-- ===== GALLERY GRID ===== -->
 <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">

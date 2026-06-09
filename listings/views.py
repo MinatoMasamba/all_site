@@ -34,6 +34,7 @@ def galerie(request):
     terme = request.GET.get("q", "").strip()
     categorie_slug = request.GET.get("categorie", "")
     commune_id = request.GET.get("commune", "")
+    prix_tranche = request.GET.get("prix", "")
 
     if terme:
         etablissements = etablissements.filter(
@@ -47,6 +48,22 @@ def galerie(request):
     if commune_id:
         etablissements = etablissements.filter(commune_id=commune_id)
 
+    TRANCHES_PRIX = [
+        ("0-10",  "Moins de 10 $"),
+        ("10-30", "10 $ – 30 $"),
+        ("30-60", "30 $ – 60 $"),
+        ("60-100","60 $ – 100 $"),
+        ("100+",  "Plus de 100 $"),
+    ]
+    if prix_tranche:
+        if prix_tranche == "100+":
+            etablissements = etablissements.filter(prix_minimum__gt=100)
+        elif "-" in prix_tranche:
+            lo, hi = prix_tranche.split("-")
+            etablissements = etablissements.filter(
+                prix_minimum__gte=lo, prix_minimum__lt=hi
+            )
+
     contexte = {
         "etablissements": etablissements.select_related("categorie", "commune").prefetch_related("images"),
         "categories": Categorie.objects.all(),
@@ -54,6 +71,8 @@ def galerie(request):
         "terme": terme,
         "categorie_active": categorie_slug,
         "commune_active": commune_id,
+        "prix_actif": prix_tranche,
+        "tranches_prix": TRANCHES_PRIX,
     }
     return render(request, "listings/galerie.html", contexte)
 
