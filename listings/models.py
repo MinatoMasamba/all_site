@@ -70,6 +70,19 @@ class Etablissement(models.Model):
         help_text="Numéro WhatsApp pour les réservations, ex: +243800000000 (hôtels et restaurants)",
     )
 
+    latitude = models.DecimalField(max_digits=10, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=10, decimal_places=6, null=True, blank=True)
+    evaluation = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True, help_text="Note Google (0–5)")
+    nombre_avis = models.PositiveIntegerField(null=True, blank=True)
+    horaires = models.TextField(blank=True, help_text="Horaires d'ouverture")
+    site_web = models.URLField(blank=True)
+    facebook = models.URLField(blank=True)
+    tiktok = models.URLField(blank=True)
+    services = models.TextField(blank=True, help_text="Services séparés par des virgules (Wi-Fi, Parking…)")
+    nombre_chambres = models.CharField(max_length=50, blank=True, help_text="Ex: 65+, 24")
+    etoiles = models.CharField(max_length=2, blank=True, help_text="0 à 5 étoiles (vide = non classé)")
+    type_cuisine = models.CharField(max_length=100, blank=True, help_text="Congolaise, Italienne, Asiatique…")
+
     proprietaire = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,

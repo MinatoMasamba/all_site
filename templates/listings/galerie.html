@@ -69,6 +69,23 @@
                         <p class="text-brun-500 text-sm flex items-center gap-1">
                             <span>📍</span> {{ etablissement.commune.nom }}
                         </p>
+                        <!-- Rating -->
+                        {% if etablissement.evaluation %}
+                            <p class="flex items-center gap-1 text-sm">
+                                <span class="text-yellow-500">★</span>
+                                <span class="font-semibold text-brun-700">{{ etablissement.evaluation }}</span>
+                                {% if etablissement.nombre_avis %}<span class="text-brun-400 text-xs">({{ etablissement.nombre_avis }})</span>{% endif %}
+                            </p>
+                        {% endif %}
+                        <!-- Type cuisine / étoiles -->
+                        {% with cat=etablissement.categorie.nom|lower %}
+                        {% if etablissement.type_cuisine and 'restaurant' in cat or etablissement.type_cuisine and 'bar' in cat %}
+                            <p class="text-brun-400 text-xs">{{ etablissement.type_cuisine }}</p>
+                        {% endif %}
+                        {% if etablissement.etoiles and 'hotel' in cat or etablissement.etoiles and 'hôtel' in cat %}
+                            <p class="text-brun-400 text-xs">{% if etablissement.etoiles == "0" %}Sans étoile{% else %}{{ etablissement.etoiles }}★{% endif %}</p>
+                        {% endif %}
+                        {% endwith %}
                         {% if etablissement.prix_minimum %}
                             <p class="text-brun-700 font-bold text-sm mt-auto pt-1">
                                 À partir de <span class="text-base">{{ etablissement.prix_minimum }} $</span>

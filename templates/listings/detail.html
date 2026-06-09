@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load listings_extras %}
 
 {% block titre %}{{ etablissement.nom }} — Découvrir Kinshasa{% endblock %}
 
@@ -152,6 +153,50 @@
             {% else %}
                 <p class="text-brun-400 italic">Aucune description disponible pour le moment.</p>
             {% endif %}
+
+            <!-- Services chips -->
+            {% if etablissement.services %}
+                <div class="mt-6">
+                    <h3 class="text-sm font-bold text-brun-700 uppercase tracking-wide mb-3">Services &amp; équipements</h3>
+                    <div class="flex flex-wrap gap-2">
+                        {% for service in etablissement.services|split_virgule %}
+                            <span class="bg-brun-100 text-brun-700 text-sm px-3 py-1 rounded-full border border-brun-200">{{ service }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Horaires -->
+            {% if etablissement.horaires %}
+                <div class="mt-5 bg-brun-50 rounded-xl border border-brun-200 p-4">
+                    <h3 class="text-sm font-bold text-brun-700 uppercase tracking-wide mb-2">🕐 Horaires</h3>
+                    <p class="text-brun-600 text-sm whitespace-pre-line">{{ etablissement.horaires }}</p>
+                </div>
+            {% endif %}
+
+            <!-- Social & Web links -->
+            {% if etablissement.site_web or etablissement.facebook or etablissement.tiktok %}
+                <div class="mt-5 flex flex-wrap gap-2">
+                    {% if etablissement.site_web %}
+                        <a href="{{ etablissement.site_web }}" target="_blank" rel="noopener"
+                           class="flex items-center gap-2 bg-brun-700 hover:bg-brun-800 text-white text-sm font-medium px-4 py-2 rounded-full transition-colors">
+                            🌐 Site web
+                        </a>
+                    {% endif %}
+                    {% if etablissement.facebook %}
+                        <a href="{{ etablissement.facebook }}" target="_blank" rel="noopener"
+                           class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-full transition-colors">
+                            Facebook
+                        </a>
+                    {% endif %}
+                    {% if etablissement.tiktok %}
+                        <a href="{{ etablissement.tiktok }}" target="_blank" rel="noopener"
+                           class="flex items-center gap-2 bg-black hover:bg-gray-900 text-white text-sm font-medium px-4 py-2 rounded-full transition-colors">
+                            TikTok
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
         </div>
 
         <!-- Info card -->
@@ -159,6 +204,48 @@
             <div class="bg-brun-50 rounded-2xl border border-brun-200 p-5 space-y-3 sticky top-24">
                 <h3 class="font-bold text-brun-800 text-base">Informations pratiques</h3>
                 <div class="h-px bg-brun-200"></div>
+
+                <!-- Star rating -->
+                {% if etablissement.evaluation %}
+                    <div>
+                        <p class="text-xs text-brun-400 uppercase font-semibold tracking-wide mb-1">Note</p>
+                        <div class="flex items-center gap-2">
+                            <span class="text-yellow-500 text-base leading-none">
+                                {% with e=etablissement.evaluation %}
+                                    {% if e >= 1 %}★{% else %}☆{% endif %}{% if e >= 2 %}★{% else %}☆{% endif %}{% if e >= 3 %}★{% else %}☆{% endif %}{% if e >= 4 %}★{% else %}☆{% endif %}{% if e >= 5 %}★{% else %}☆{% endif %}
+                                {% endwith %}
+                            </span>
+                            <span class="text-brun-700 font-bold text-sm">{{ etablissement.evaluation }}</span>
+                            {% if etablissement.nombre_avis %}
+                                <span class="text-brun-400 text-xs">({{ etablissement.nombre_avis }} avis)</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Classification étoiles hôtel -->
+                {% with cat=etablissement.categorie.nom|lower %}
+                {% if 'hotel' in cat or 'hôtel' in cat %}
+                    {% if etablissement.etoiles %}
+                        <div>
+                            <p class="text-xs text-brun-400 uppercase font-semibold tracking-wide mb-0.5">Classement</p>
+                            <p class="text-brun-700 text-sm font-medium">
+                                {% if etablissement.etoiles == "0" %}Sans étoile{% else %}{{ etablissement.etoiles }} étoile{{ etablissement.etoiles|pluralize }}{% endif %}
+                                {% if etablissement.nombre_chambres %} · {{ etablissement.nombre_chambres }} chambres{% endif %}
+                            </p>
+                        </div>
+                    {% endif %}
+                {% endif %}
+                <!-- Type cuisine restaurant/bar -->
+                {% if 'restaurant' in cat or 'bar' in cat %}
+                    {% if etablissement.type_cuisine %}
+                        <div>
+                            <p class="text-xs text-brun-400 uppercase font-semibold tracking-wide mb-0.5">Cuisine</p>
+                            <p class="text-brun-700 text-sm">{{ etablissement.type_cuisine }}</p>
+                        </div>
+                    {% endif %}
+                {% endif %}
+                {% endwith %}
 
                 <div>
                     <p class="text-xs text-brun-400 uppercase font-semibold tracking-wide mb-0.5">Tarif indicatif</p>
@@ -177,8 +264,17 @@
                 {% if etablissement.telephone %}
                     <div>
                         <p class="text-xs text-brun-400 uppercase font-semibold tracking-wide mb-0.5">Téléphone</p>
-                        <p class="text-brun-700 font-medium">{{ etablissement.telephone }}</p>
+                        <a href="tel:{{ etablissement.telephone }}" class="text-brun-700 font-medium hover:text-brun-900 transition-colors">{{ etablissement.telephone }}</a>
                     </div>
+                {% endif %}
+
+                <!-- GPS button -->
+                {% if etablissement.latitude and etablissement.longitude %}
+                    <a href="https://www.openstreetmap.org/?mlat={{ etablissement.latitude }}&mlon={{ etablissement.longitude }}&zoom=17"
+                       target="_blank" rel="noopener"
+                       class="flex items-center justify-center gap-2 bg-brun-100 hover:bg-brun-200 border border-brun-200 text-brun-700 font-semibold text-sm px-4 py-2.5 rounded-full transition-colors w-full">
+                        📍 Voir sur la carte
+                    </a>
                 {% endif %}
 
                 <!-- Contacts réservation : hôtels et restaurants uniquement -->

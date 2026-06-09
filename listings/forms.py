@@ -11,9 +11,13 @@ class EtablissementForm(forms.ModelForm):
             "nom", "categorie", "commune", "adresse", "description",
             "prix_minimum", "prix_maximum", "telephone",
             "email_contact", "whatsapp_contact",
+            "horaires", "site_web", "facebook", "tiktok", "services",
+            "nombre_chambres", "etoiles", "type_cuisine", "latitude", "longitude",
         ]
         widgets = {
             "description": forms.Textarea(attrs={"rows": 5}),
+            "horaires": forms.Textarea(attrs={"rows": 3}),
+            "services": forms.TextInput(attrs={"placeholder": "Wi-Fi, Parking, Piscine, Restaurant…"}),
         }
 
 
