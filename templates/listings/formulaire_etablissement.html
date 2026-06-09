@@ -45,26 +45,21 @@
         <form method="post" enctype="multipart/form-data" class="space-y-5">
             {% csrf_token %}
 
+            <!-- ===== Informations générales ===== -->
             <h3 class="text-base font-bold text-brun-700 pb-2 border-b border-brun-100">Informations générales</h3>
+
             {% for field in form %}
+                {% if field.html_name not in "email_contact,whatsapp_contact" %}
                 <div>
                     <label for="{{ field.id_for_label }}" class="block text-sm font-semibold text-brun-700 mb-1">
-                        {{ field.label }}
-                        {% if field.field.required %}<span class="text-brun-300">*</span>{% endif %}
+                        {{ field.label }}{% if field.field.required %} <span class="text-brun-300">*</span>{% endif %}
                     </label>
-                    {% if field.field.widget.input_type == 'checkbox' %}
-                        <div class="flex items-center gap-2">
-                            <input type="checkbox" name="{{ field.html_name }}" id="{{ field.id_for_label }}"
-                                   {% if field.value %}checked{% endif %}
-                                   class="w-4 h-4 accent-brun-700">
-                            <span class="text-sm text-brun-600">{{ field.help_text }}</span>
-                        </div>
-                    {% elif field.field.widget.input_type == 'select' or 'Select' in field.field.widget.__class__.__name__ %}
-                        {{ field }}
-                    {% elif field.field.widget.__class__.__name__ == 'Textarea' %}
+                    {% if field.field.widget.__class__.__name__ == 'Textarea' %}
                         <textarea name="{{ field.html_name }}" id="{{ field.id_for_label }}" rows="4"
                                   class="w-full px-4 py-2.5 rounded-xl border border-brun-200 bg-brun-50 text-brun-900 text-sm form-field focus:border-brun-500 focus:bg-white transition-colors resize-none"
                                   {% if field.field.required %}required{% endif %}>{% if field.value %}{{ field.value }}{% endif %}</textarea>
+                    {% elif 'Select' in field.field.widget.__class__.__name__ %}
+                        {{ field }}
                     {% else %}
                         <input type="{{ field.field.widget.input_type }}"
                                name="{{ field.html_name }}"
@@ -73,17 +68,64 @@
                                class="w-full px-4 py-2.5 rounded-xl border border-brun-200 bg-brun-50 text-brun-900 text-sm form-field focus:border-brun-500 focus:bg-white transition-colors"
                                {% if field.field.required %}required{% endif %}>
                     {% endif %}
-                    {% if field.help_text and field.field.widget.input_type != 'checkbox' %}
+                    {% if field.help_text %}
                         <p class="text-xs text-brun-400 mt-0.5">{{ field.help_text }}</p>
                     {% endif %}
                     {% if field.errors %}
                         <p class="text-red-600 text-xs mt-1">{{ field.errors.0 }}</p>
                     {% endif %}
                 </div>
+                {% endif %}
             {% endfor %}
 
+            <!-- ===== Contact réservation (hôtels & restaurants uniquement) ===== -->
+            <div id="section-contact" class="hidden">
+                <h3 class="text-base font-bold text-brun-700 pb-2 border-b border-brun-100 pt-2 flex items-center gap-2">
+                    📞 Contact pour les réservations
+                    <span class="text-xs font-normal text-brun-400 bg-brun-50 px-2 py-0.5 rounded-full">Hôtels &amp; Restaurants</span>
+                </h3>
+                <div class="mt-5 space-y-4">
+
+                    <!-- email_contact -->
+                    <div>
+                        <label for="{{ form.email_contact.id_for_label }}" class="block text-sm font-semibold text-brun-700 mb-1">
+                            {{ form.email_contact.label }}
+                        </label>
+                        <input type="email"
+                               name="{{ form.email_contact.html_name }}"
+                               id="{{ form.email_contact.id_for_label }}"
+                               {% if form.email_contact.value %}value="{{ form.email_contact.value }}"{% endif %}
+                               placeholder="reservations@monhotel.cd"
+                               class="w-full px-4 py-2.5 rounded-xl border border-brun-200 bg-brun-50 text-brun-900 text-sm form-field focus:border-brun-500 focus:bg-white transition-colors">
+                        {% if form.email_contact.errors %}
+                            <p class="text-red-600 text-xs mt-1">{{ form.email_contact.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- whatsapp_contact -->
+                    <div>
+                        <label for="{{ form.whatsapp_contact.id_for_label }}" class="block text-sm font-semibold text-brun-700 mb-1">
+                            {{ form.whatsapp_contact.label }}
+                        </label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-base">💬</span>
+                            <input type="text"
+                                   name="{{ form.whatsapp_contact.html_name }}"
+                                   id="{{ form.whatsapp_contact.id_for_label }}"
+                                   {% if form.whatsapp_contact.value %}value="{{ form.whatsapp_contact.value }}"{% endif %}
+                                   placeholder="+243800000000"
+                                   class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-brun-200 bg-brun-50 text-brun-900 text-sm form-field focus:border-brun-500 focus:bg-white transition-colors">
+                        </div>
+                        {% if form.whatsapp_contact.errors %}
+                            <p class="text-red-600 text-xs mt-1">{{ form.whatsapp_contact.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== Photos ===== -->
             {% if formset %}
-                <h3 class="text-base font-bold text-brun-700 pb-2 border-b border-brun-100 pt-4">Photos de l'établissement</h3>
+                <h3 class="text-base font-bold text-brun-700 pb-2 border-b border-brun-100 pt-2">Photos de l'établissement</h3>
                 {{ formset.management_form }}
                 {% for sous_formulaire in formset %}
                     <div class="bg-brun-50 rounded-xl border border-brun-100 p-4">
@@ -108,4 +150,23 @@
         </form>
     </div>
 </div>
+
+<script>
+(function () {
+    const select  = document.getElementById('id_categorie');
+    const section = document.getElementById('section-contact');
+    if (!select || !section) return;
+
+    const SLUGS_CIBLES = ['hotel', 'hôtel', 'restaurant'];
+
+    function refresh() {
+        const txt = (select.options[select.selectedIndex]?.text ?? '').toLowerCase();
+        const visible = SLUGS_CIBLES.some(s => txt.includes(s));
+        section.classList.toggle('hidden', !visible);
+    }
+
+    select.addEventListener('change', refresh);
+    refresh();   /* affichage immédiat en mode édition */
+})();
+</script>
 {% endblock %}

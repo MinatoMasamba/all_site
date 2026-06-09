@@ -60,6 +60,15 @@ class Etablissement(models.Model):
         help_text="Prix indicatif le plus haut, en USD",
     )
     telephone = models.CharField(max_length=20, blank=True)
+    email_contact = models.EmailField(
+        blank=True,
+        help_text="Email de réservation (hôtels et restaurants)",
+    )
+    whatsapp_contact = models.CharField(
+        max_length=20,
+        blank=True,
+        help_text="Numéro WhatsApp pour les réservations, ex: +243800000000 (hôtels et restaurants)",
+    )
 
     proprietaire = models.ForeignKey(
         settings.AUTH_USER_MODEL,

@@ -10,6 +10,7 @@ class EtablissementForm(forms.ModelForm):
         fields = [
             "nom", "categorie", "commune", "adresse", "description",
             "prix_minimum", "prix_maximum", "telephone",
+            "email_contact", "whatsapp_contact",
         ]
         widgets = {
             "description": forms.Textarea(attrs={"rows": 5}),
