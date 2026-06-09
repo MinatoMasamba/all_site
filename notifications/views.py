@@ -13,6 +13,7 @@ def abonnement(request):
         form = AbonnementNewsletterForm(request.POST)
         if form.is_valid():
             form.save()
+            request.session["newsletter_abonne"] = True
             messages.success(
                 request,
                 "Merci ! Vous recevrez désormais les offres et nouveautés des "

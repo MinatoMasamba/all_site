@@ -133,23 +133,33 @@
     </main>
 
     <!-- ===== NEWSLETTER ===== -->
-    <section class="bg-brun-100 py-12 px-4">
-        <div class="max-w-2xl mx-auto text-center">
-            <p class="text-3xl mb-2">🌼</p>
-            <h2 class="text-2xl font-bold text-brun-800 mb-2">Ne manquez aucune offre ni nouveauté</h2>
-            <p class="text-brun-600 mb-6 text-sm">Recevez par email et WhatsApp les nouveaux établissements et les promotions des hôtels, restaurants, bars et sites touristiques de Kinshasa.</p>
-            <form method="post" action="{% url 'notifications:abonnement' %}" class="flex flex-col sm:flex-row gap-3 justify-center">
-                {% csrf_token %}
-                <input type="email" name="email" placeholder="Votre adresse email" required
-                       class="flex-1 min-w-0 px-4 py-2.5 rounded-full border border-brun-300 bg-white text-brun-900 placeholder-brun-400 text-sm form-field focus:border-brun-500">
-                <input type="text" name="numero_whatsapp" placeholder="WhatsApp (ex: +243800000000)"
-                       class="flex-1 min-w-0 px-4 py-2.5 rounded-full border border-brun-300 bg-white text-brun-900 placeholder-brun-400 text-sm form-field focus:border-brun-500">
-                <button type="submit" class="bg-brun-700 hover:bg-brun-800 text-white font-semibold px-6 py-2.5 rounded-full transition-colors text-sm whitespace-nowrap shadow-fleur">
-                    S'abonner aux offres
-                </button>
-            </form>
-        </div>
-    </section>
+    {% if est_abonne %}
+        <section class="bg-brun-100 py-8 px-4">
+            <div class="max-w-2xl mx-auto text-center">
+                <p class="text-3xl mb-2">🌸</p>
+                <p class="text-brun-700 font-semibold text-base">Vous êtes abonné(e) aux offres et nouveautés de Découvrir Kinshasa.</p>
+                <p class="text-brun-400 text-sm mt-1">Vous recevrez les prochaines annonces par email et WhatsApp.</p>
+            </div>
+        </section>
+    {% else %}
+        <section class="bg-brun-100 py-12 px-4">
+            <div class="max-w-2xl mx-auto text-center">
+                <p class="text-3xl mb-2">🌼</p>
+                <h2 class="text-2xl font-bold text-brun-800 mb-2">Ne manquez aucune offre ni nouveauté</h2>
+                <p class="text-brun-600 mb-6 text-sm">Recevez par email et WhatsApp les nouveaux établissements et les promotions des hôtels, restaurants, bars et sites touristiques de Kinshasa.</p>
+                <form method="post" action="{% url 'notifications:abonnement' %}" class="flex flex-col sm:flex-row gap-3 justify-center">
+                    {% csrf_token %}
+                    <input type="email" name="email" placeholder="Votre adresse email" required
+                           class="flex-1 min-w-0 px-4 py-2.5 rounded-full border border-brun-300 bg-white text-brun-900 placeholder-brun-400 text-sm form-field focus:border-brun-500">
+                    <input type="text" name="numero_whatsapp" placeholder="WhatsApp (ex: +243800000000)"
+                           class="flex-1 min-w-0 px-4 py-2.5 rounded-full border border-brun-300 bg-white text-brun-900 placeholder-brun-400 text-sm form-field focus:border-brun-500">
+                    <button type="submit" class="bg-brun-700 hover:bg-brun-800 text-white font-semibold px-6 py-2.5 rounded-full transition-colors text-sm whitespace-nowrap shadow-fleur">
+                        S'abonner aux offres
+                    </button>
+                </form>
+            </div>
+        </section>
+    {% endif %}
 
     <!-- ===== FOOTER ===== -->
     <footer class="bg-brun-800 text-brun-200 py-8 px-4">
