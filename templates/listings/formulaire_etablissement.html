@@ -125,21 +125,160 @@
 
             <!-- ===== Photos ===== -->
             {% if formset %}
-                <h3 class="text-base font-bold text-brun-700 pb-2 border-b border-brun-100 pt-2">Photos de l'établissement</h3>
-                {{ formset.management_form }}
-                {% for sous_formulaire in formset %}
-                    <div class="bg-brun-50 rounded-xl border border-brun-100 p-4">
-                        {% for field in sous_formulaire %}
-                            <div class="mb-3">
-                                <label class="block text-sm font-semibold text-brun-700 mb-1">{{ field.label }}</label>
-                                {{ field }}
-                                {% if field.errors %}
-                                    <p class="text-red-600 text-xs mt-1">{{ field.errors.0 }}</p>
+                <div class="pt-2">
+                    <h3 class="text-base font-bold text-brun-700 pb-2 border-b border-brun-100 flex items-center justify-between">
+                        <span>📷 Photos de l'établissement</span>
+                        <span class="text-xs font-normal text-brun-400">20 photos max</span>
+                    </h3>
+
+                    {{ formset.management_form }}
+
+                    <!-- Grille des photos existantes + nouveaux slots -->
+                    <div id="photo-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
+
+                        {% for f in formset %}
+                            <div class="photo-slot relative rounded-xl border border-brun-200 overflow-hidden bg-brun-50 flex flex-col">
+                                {% if f.instance.pk and f.instance.image %}
+                                    <!-- Photo existante -->
+                                    <img src="{{ f.instance.image.url }}"
+                                         alt="Photo" class="w-full h-36 object-cover">
+                                    <div class="p-2 flex flex-col gap-1 flex-1">
+                                        <div class="hidden">{{ f.id }}</div>
+                                        <!-- champ image caché : garde l'image existante -->
+                                        <div class="hidden">{{ f.image }}</div>
+                                        <input type="text" name="{{ f.legende.html_name }}"
+                                               value="{{ f.legende.value|default:'' }}"
+                                               placeholder="Légende (optionnel)"
+                                               class="w-full px-2 py-1 rounded-lg border border-brun-200 bg-white text-brun-800 text-xs">
+                                        <label class="flex items-center gap-1.5 text-xs text-red-500 cursor-pointer mt-auto pt-1">
+                                            <input type="checkbox" name="{{ f.DELETE.html_name }}"
+                                                   class="w-3.5 h-3.5 accent-red-500">
+                                            Supprimer cette photo
+                                        </label>
+                                    </div>
+                                {% else %}
+                                    <!-- Slot vide (ne devrait pas arriver avec extra=0, mais sécurité) -->
+                                    <div class="preview-wrap hidden flex-shrink-0">
+                                        <img class="preview-img w-full h-36 object-cover">
+                                    </div>
+                                    <div class="no-preview flex flex-col items-center justify-center h-36 text-brun-300">
+                                        <span class="text-3xl mb-1">🖼️</span>
+                                        <span class="text-xs">Sélectionner une photo</span>
+                                    </div>
+                                    <div class="p-2 flex flex-col gap-1">
+                                        <div class="hidden">{{ f.id }}</div>
+                                        {{ f.image }}
+                                        <input type="text" name="{{ f.legende.html_name }}"
+                                               value="{{ f.legende.value|default:'' }}"
+                                               placeholder="Légende (optionnel)"
+                                               class="w-full px-2 py-1 rounded-lg border border-brun-200 bg-white text-brun-800 text-xs">
+                                    </div>
                                 {% endif %}
                             </div>
                         {% endfor %}
+
+                    </div><!-- #photo-grid -->
+
+                    <!-- Bouton ajouter -->
+                    <button type="button" id="add-photo-btn"
+                            class="mt-4 w-full flex items-center justify-center gap-2 border-2 border-dashed border-brun-300 hover:border-brun-500 rounded-xl py-3 text-brun-500 hover:text-brun-700 font-semibold text-sm transition-colors">
+                        <span class="text-xl leading-none">+</span> Ajouter des photos
+                    </button>
+                </div>
+
+                <!-- Template vide cloné par JS -->
+                <template id="empty-photo-tpl">
+                    <div class="photo-slot relative rounded-xl border border-brun-200 overflow-hidden bg-brun-50 flex flex-col">
+                        <div class="preview-wrap hidden flex-shrink-0">
+                            <img class="preview-img w-full h-36 object-cover">
+                        </div>
+                        <div class="no-preview flex flex-col items-center justify-center h-36 text-brun-300 cursor-pointer"
+                             onclick="this.closest('.photo-slot').querySelector('input[type=file]').click()">
+                            <span class="text-3xl mb-1">🖼️</span>
+                            <span class="text-xs">Cliquer pour choisir</span>
+                        </div>
+                        <div class="p-2 flex flex-col gap-1 hidden-fields">
+                            <!-- Les champs seront injectés par JS avec le bon préfixe -->
+                        </div>
                     </div>
-                {% endfor %}
+                </template>
+
+                <!-- Template des champs du formulaire vide Django (avec __prefix__) -->
+                <div id="empty-form-fields" class="hidden">
+                    {{ formset.empty_form.id }}
+                    {{ formset.empty_form.image }}
+                    <input type="text" name="{{ formset.empty_form.legende.html_name }}"
+                           placeholder="Légende (optionnel)"
+                           class="w-full px-2 py-1 rounded-lg border border-brun-200 bg-white text-brun-800 text-xs">
+                </div>
+
+                <script>
+                (function () {
+                    const grid      = document.getElementById('photo-grid');
+                    const tpl       = document.getElementById('empty-photo-tpl');
+                    const srcFields = document.getElementById('empty-form-fields');
+                    const totalIn   = document.querySelector('[name$="-TOTAL_FORMS"]');
+                    const btn       = document.getElementById('add-photo-btn');
+
+                    function getPrefix() {
+                        /* Déduit le préfixe depuis le champ TOTAL_FORMS, ex: "form" dans "form-TOTAL_FORMS" */
+                        return totalIn.name.replace('-TOTAL_FORMS', '');
+                    }
+
+                    function setupPreview(slot) {
+                        const fileInput = slot.querySelector('input[type="file"]');
+                        if (!fileInput) return;
+                        /* Rend le slot entier cliquable pour sélectionner un fichier */
+                        const noPreview = slot.querySelector('.no-preview');
+                        if (noPreview) noPreview.onclick = () => fileInput.click();
+
+                        fileInput.addEventListener('change', function () {
+                            const wrap = slot.querySelector('.preview-wrap');
+                            const img  = slot.querySelector('.preview-img');
+                            const np   = slot.querySelector('.no-preview');
+                            if (this.files && this.files[0]) {
+                                const reader = new FileReader();
+                                reader.onload = e => {
+                                    img.src = e.target.result;
+                                    wrap.classList.remove('hidden');
+                                    if (np) np.classList.add('hidden');
+                                };
+                                reader.readAsDataURL(this.files[0]);
+                            }
+                        });
+                    }
+
+                    function addSlot() {
+                        const prefix = getPrefix();
+                        const idx    = parseInt(totalIn.value);
+                        const slot   = tpl.content.cloneNode(true).querySelector('.photo-slot');
+                        const dest   = slot.querySelector('.hidden-fields');
+
+                        /* Clone et renomme les champs depuis le template Django */
+                        srcFields.querySelectorAll('[name],[id]').forEach(src => {
+                            const clone = src.cloneNode(true);
+                            ['name', 'id', 'for'].forEach(attr => {
+                                if (clone.getAttribute(attr)) {
+                                    clone.setAttribute(attr,
+                                        clone.getAttribute(attr).replace('__prefix__', idx));
+                                }
+                            });
+                            dest.appendChild(clone);
+                        });
+                        dest.classList.remove('hidden-fields');
+                        dest.classList.add('p-2', 'flex', 'flex-col', 'gap-1');
+
+                        setupPreview(slot);
+                        grid.appendChild(slot);
+                        totalIn.value = idx + 1;
+                    }
+
+                    btn.addEventListener('click', addSlot);
+
+                    /* Setup preview pour slots éventuellement déjà présents (extra > 0) */
+                    grid.querySelectorAll('.photo-slot').forEach(setupPreview);
+                })();
+                </script>
             {% endif %}
 
             <div class="pt-2">
