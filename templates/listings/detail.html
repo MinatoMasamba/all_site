@@ -178,10 +178,17 @@
             {% if etablissement.site_web or etablissement.facebook or etablissement.tiktok %}
                 <div class="mt-5 flex flex-wrap gap-2">
                     {% if etablissement.site_web %}
-                        <a href="{{ etablissement.site_web }}" target="_blank" rel="noopener"
-                           class="flex items-center gap-2 bg-brun-700 hover:bg-brun-800 text-white text-sm font-medium px-4 py-2 rounded-full transition-colors">
-                            🌐 Site web
-                        </a>
+                        {% if etablissement.site_web|is_maps_url %}
+                            <a href="{{ etablissement.site_web }}" target="_blank" rel="noopener"
+                               class="flex items-center gap-2 bg-brun-100 hover:bg-brun-200 border border-brun-200 text-brun-700 text-sm font-medium px-4 py-2 rounded-full transition-colors">
+                                📍 Voir sur Google Maps
+                            </a>
+                        {% else %}
+                            <a href="{{ etablissement.site_web }}" target="_blank" rel="noopener"
+                               class="flex items-center gap-2 bg-brun-700 hover:bg-brun-800 text-white text-sm font-medium px-4 py-2 rounded-full transition-colors">
+                                🌐 Site web
+                            </a>
+                        {% endif %}
                     {% endif %}
                     {% if etablissement.facebook %}
                         <a href="{{ etablissement.facebook }}" target="_blank" rel="noopener"
