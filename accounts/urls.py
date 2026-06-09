@@ -10,4 +10,5 @@ urlpatterns = [
     path("inscription/", views.inscription, name="inscription"),
     path("inscription/proprietaire/", views.inscription_proprietaire, name="inscription_proprietaire"),
     path("inscription/mediateur/", views.inscription_mediateur, name="inscription_mediateur"),
+    path("devenir-mediateur/", views.devenir_mediateur, name="devenir_mediateur"),
 ]

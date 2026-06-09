@@ -74,9 +74,22 @@
                 <a href="{% url 'accounts:inscription_proprietaire' %}" class="text-brun-100 hover:text-white font-medium px-3 py-1.5 rounded-full hover:bg-white/10 transition-all text-sm">
                     Enregistrer mon établissement
                 </a>
-                <a href="{% url 'accounts:inscription_mediateur' %}" class="text-brun-100 hover:text-white font-medium px-3 py-1.5 rounded-full hover:bg-white/10 transition-all text-sm">
-                    Devenir médiateur
-                </a>
+                {% if user.is_authenticated %}
+                    {% if not user.est_mediateur and not user.est_gestionnaire %}
+                        <a href="{% url 'accounts:devenir_mediateur' %}" class="text-brun-100 hover:text-white font-medium px-3 py-1.5 rounded-full hover:bg-white/10 transition-all text-sm">
+                            Devenir médiateur
+                        </a>
+                    {% endif %}
+                    {% if user.est_mediateur %}
+                        <a href="{% url 'accounts:devenir_mediateur' %}" class="text-brun-100 hover:text-white font-medium px-3 py-1.5 rounded-full hover:bg-white/10 transition-all text-sm">
+                            Mon espace médiateur
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'accounts:inscription_mediateur' %}" class="text-brun-100 hover:text-white font-medium px-3 py-1.5 rounded-full hover:bg-white/10 transition-all text-sm">
+                        Devenir médiateur
+                    </a>
+                {% endif %}
 
                 {% if user.is_authenticated %}
                     {% if user.est_proprietaire or user.est_mediateur or user.est_gestionnaire %}

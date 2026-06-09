@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block titre %}Devenir médiateur — Découvrir Kinshasa{% endblock %}
+
+{% block contenu %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 py-10">
+
+    <!-- Header -->
+    <div class="text-center mb-8">
+        <div class="text-5xl mb-4">🤝</div>
+        <h1 class="text-3xl font-extrabold text-brun-800 mb-2">Devenez médiateur</h1>
+        <p class="text-brun-500 text-base">
+            Votre compte <strong class="text-brun-700">{{ user.username }}</strong> sera mis à niveau —
+            aucun nouveau compte à créer.
+        </p>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="mb-6 px-4 py-3 rounded-xl text-sm font-medium
+                        {% if message.tags == 'error' %}bg-red-50 text-red-700 border border-red-200
+                        {% else %}bg-emerald-50 text-emerald-700 border border-emerald-200{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Contract card -->
+    <div class="bg-white rounded-2xl border border-brun-200 shadow-fleur overflow-hidden">
+
+        <!-- What is a mediator -->
+        <div class="bg-brun-700 px-6 py-4">
+            <h2 class="text-white font-bold text-lg">📋 Votre rôle de médiateur</h2>
+        </div>
+        <div class="px-6 py-5 space-y-3 text-brun-700 text-sm leading-relaxed border-b border-brun-100">
+            <p>En tant que médiateur sur <strong>Découvrir Kinshasa</strong>, vous aidez à construire
+               l'annuaire de référence de la ville en ajoutant des établissements que vous connaissez
+               sur le terrain (hôtels, restaurants, bars, sites touristiques).</p>
+            <ul class="list-none space-y-2">
+                <li class="flex items-start gap-2"><span class="text-brun-500 mt-0.5">✓</span> Ajouter des fiches d'établissements avec photos, description, adresse, téléphone</li>
+                <li class="flex items-start gap-2"><span class="text-brun-500 mt-0.5">✓</span> Mettre à jour les informations des fiches existantes</li>
+                <li class="flex items-start gap-2"><span class="text-brun-500 mt-0.5">✓</span> Renseigner les horaires, les services, les coordonnées GPS</li>
+                <li class="flex items-start gap-2"><span class="text-brun-500 mt-0.5">✗</span> Vous ne pouvez pas supprimer des fiches ni gérer les réservations</li>
+            </ul>
+        </div>
+
+        <!-- Remuneration -->
+        <div class="px-6 py-5 border-b border-brun-100">
+            <h2 class="font-bold text-brun-800 text-base mb-4">💰 Comment vous serez rémunéré</h2>
+
+            <div class="bg-brun-50 rounded-xl p-4 border border-brun-200 mb-4">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-brun-700 font-semibold text-sm">Tarif de base</span>
+                    <span class="bg-brun-700 text-white font-bold text-sm px-3 py-1 rounded-full">1 $ par tranche de 5</span>
+                </div>
+                <p class="text-brun-500 text-xs">
+                    Pour chaque groupe de <strong>5 établissements complets</strong> que vous ajoutez,
+                    vous recevez <strong>1 dollar</strong> (payé via Mobile Money — M-Pesa, Airtel Money ou Orange Money).
+                </p>
+            </div>
+
+            <!-- What counts as complete -->
+            <h3 class="font-semibold text-brun-700 text-sm mb-3">Un établissement est considéré <em>complet</em> s'il contient :</h3>
+            <div class="grid grid-cols-2 gap-2">
+                <div class="flex items-center gap-2 bg-white rounded-lg border border-brun-100 px-3 py-2 text-xs text-brun-700">
+                    <span class="text-brun-500">📷</span> Au moins 1 photo
+                </div>
+                <div class="flex items-center gap-2 bg-white rounded-lg border border-brun-100 px-3 py-2 text-xs text-brun-700">
+                    <span class="text-brun-500">📝</span> Une description
+                </div>
+                <div class="flex items-center gap-2 bg-white rounded-lg border border-brun-100 px-3 py-2 text-xs text-brun-700">
+                    <span class="text-brun-500">📍</span> L'adresse exacte
+                </div>
+                <div class="flex items-center gap-2 bg-white rounded-lg border border-brun-100 px-3 py-2 text-xs text-brun-700">
+                    <span class="text-brun-500">📞</span> Un numéro de téléphone
+                </div>
+                <div class="flex items-center gap-2 bg-white rounded-lg border border-brun-100 px-3 py-2 text-xs text-brun-700">
+                    <span class="text-brun-500">🏷️</span> La catégorie et la commune
+                </div>
+                <div class="flex items-center gap-2 bg-white rounded-lg border border-brun-100 px-3 py-2 text-xs text-brun-700">
+                    <span class="text-brun-500">✅</span> Statut publié
+                </div>
+            </div>
+
+            <!-- Example -->
+            <div class="mt-4 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
+                <p class="text-emerald-800 text-xs font-medium mb-1">Exemple concret :</p>
+                <div class="space-y-1 text-xs text-emerald-700">
+                    <p>5 établissements complets → <strong>1 $</strong></p>
+                    <p>10 établissements complets → <strong>2 $</strong></p>
+                    <p>25 établissements complets → <strong>5 $</strong></p>
+                    <p>50 établissements complets → <strong>10 $</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment method -->
+        <div class="px-6 py-5 border-b border-brun-100">
+            <h2 class="font-bold text-brun-800 text-base mb-3">📲 Modalités de paiement</h2>
+            <ul class="space-y-2 text-sm text-brun-700">
+                <li class="flex items-start gap-2"><span class="text-brun-400 mt-0.5">•</span>
+                    Paiement mensuel via <strong>Mobile Money</strong> (M-Pesa, Airtel Money, Orange Money)
+                </li>
+                <li class="flex items-start gap-2"><span class="text-brun-400 mt-0.5">•</span>
+                    Seuls les établissements <strong>vérifiés et publiés</strong> par un gestionnaire sont comptabilisés
+                </li>
+                <li class="flex items-start gap-2"><span class="text-brun-400 mt-0.5">•</span>
+                    Les fiches en doublon ou avec de fausses informations ne sont pas comptées et peuvent entraîner la suspension du compte
+                </li>
+                <li class="flex items-start gap-2"><span class="text-brun-400 mt-0.5">•</span>
+                    Votre numéro de téléphone Mobile Money doit être renseigné dans votre profil
+                </li>
+            </ul>
+        </div>
+
+        <!-- Accept form -->
+        <form method="post" class="px-6 py-6">
+            {% csrf_token %}
+            <input type="hidden" name="accepte" value="1">
+
+            <label class="flex items-start gap-3 cursor-pointer mb-6 group">
+                <input type="checkbox" id="checkbox-contrat" required
+                       class="mt-1 w-4 h-4 rounded border-brun-300 text-brun-700 cursor-pointer shrink-0">
+                <span class="text-sm text-brun-700">
+                    J'ai lu et j'accepte les conditions ci-dessus. Je m'engage à fournir des informations
+                    exactes et vérifiées. Je comprends que <strong>1 $ sera versé par tranche de 5 établissements
+                    complets</strong> validés par l'équipe.
+                </span>
+            </label>
+
+            <button type="submit"
+                    class="w-full bg-brun-700 hover:bg-brun-800 text-white font-bold py-3 px-6 rounded-full transition-colors shadow-fleur text-base">
+                ✅ J'accepte — Activer mon compte médiateur
+            </button>
+        </form>
+    </div>
+
+    <p class="text-center text-brun-400 text-xs mt-6">
+        Vous avez des questions ?
+        <a href="mailto:contact@decouvrir-kinshasa.cd" class="text-brun-600 hover:underline">Contactez-nous</a>
+    </p>
+</div>
+{% endblock %}

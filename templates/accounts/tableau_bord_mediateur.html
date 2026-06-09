@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block titre %}Tableau de bord médiateur — Découvrir Kinshasa{% endblock %}
+
+{% block contenu %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 py-10">
+
+    <div class="text-center mb-8">
+        <div class="text-5xl mb-3">🌟</div>
+        <h1 class="text-2xl font-extrabold text-brun-800">Tableau de bord médiateur</h1>
+        <p class="text-brun-500 text-sm mt-1">Bonjour, <strong class="text-brun-700">{{ user.username }}</strong></p>
+    </div>
+
+    <!-- Stats grid -->
+    <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="bg-white rounded-2xl border border-brun-200 shadow-fleur p-5 text-center">
+            <p class="text-3xl font-extrabold text-brun-800">{{ complets }}</p>
+            <p class="text-brun-500 text-xs mt-1 uppercase tracking-wide font-semibold">Établissements complets</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-brun-200 shadow-fleur p-5 text-center">
+            <p class="text-3xl font-extrabold text-emerald-600">{{ gains_estimes }} $</p>
+            <p class="text-brun-500 text-xs mt-1 uppercase tracking-wide font-semibold">Gains estimés</p>
+        </div>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="bg-white rounded-2xl border border-brun-200 shadow-fleur p-5 mb-6">
+        <div class="flex justify-between items-center mb-2">
+            <span class="text-sm font-semibold text-brun-700">Progression vers le prochain dollar</span>
+            <span class="text-sm font-bold text-brun-800">{{ complets|divisibleby:5|yesno:"5,"|default:"" }}{{ complets }}
+                / {{ tranches_payees|add:1|stringformat:"d" }}{% widthratio complets 5 1 %}</span>
+        </div>
+        {% with avancement=complets|add:0 %}
+        {% with reste=prochain_palier %}
+        <div class="w-full bg-brun-100 rounded-full h-3 overflow-hidden">
+            {% with pct=complets %}
+            <div class="bg-brun-700 h-3 rounded-full transition-all"
+                 style="width: {% widthratio complets|add:0 5 100 %}%;
+                        max-width: 100%;"></div>
+            {% endwith %}
+        </div>
+        <p class="text-xs text-brun-400 mt-2">
+            {% if prochain_palier == 5 %}
+                Ajoutez 5 établissements complets pour gagner votre prochain <strong>1 $</strong>
+            {% else %}
+                Plus que <strong>{{ prochain_palier }}</strong> établissement{{ prochain_palier|pluralize }} complet{{ prochain_palier|pluralize }} pour gagner <strong>1 $</strong> supplémentaire
+            {% endif %}
+        </p>
+        {% endwith %}
+        {% endwith %}
+    </div>
+
+    <!-- Rappel conditions -->
+    <div class="bg-brun-50 rounded-2xl border border-brun-200 p-5 mb-6 text-sm text-brun-700">
+        <h3 class="font-bold mb-3">📋 Rappel — établissement complet</h3>
+        <div class="grid grid-cols-2 gap-2 text-xs">
+            <span class="flex items-center gap-1"><span class="text-emerald-500">✓</span> 1 photo minimum</span>
+            <span class="flex items-center gap-1"><span class="text-emerald-500">✓</span> Description</span>
+            <span class="flex items-center gap-1"><span class="text-emerald-500">✓</span> Adresse exacte</span>
+            <span class="flex items-center gap-1"><span class="text-emerald-500">✓</span> Téléphone</span>
+            <span class="flex items-center gap-1"><span class="text-emerald-500">✓</span> Catégorie & commune</span>
+            <span class="flex items-center gap-1"><span class="text-emerald-500">✓</span> Statut publié</span>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="flex flex-col sm:flex-row gap-3">
+        <a href="{% url 'listings:creer_etablissement' %}"
+           class="flex-1 text-center bg-brun-700 hover:bg-brun-800 text-white font-bold py-3 px-6 rounded-full transition-colors shadow-fleur">
+            ➕ Ajouter un établissement
+        </a>
+        <a href="{% url 'listings:mes_etablissements' %}"
+           class="flex-1 text-center bg-white hover:bg-brun-50 border border-brun-200 text-brun-700 font-semibold py-3 px-6 rounded-full transition-colors">
+            📋 Mes établissements
+        </a>
+    </div>
+</div>
+{% endblock %}
