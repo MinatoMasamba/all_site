@@ -4,54 +4,91 @@
 {% block titre %}Galerie des établissements — Découvrir Kinshasa{% endblock %}
 
 {% block contenu %}
-<section class="hero">
-    <h1>Trouvez où sortir, dormir et manger à Kinshasa</h1>
-    <p>Hôtels, restaurants, bars et sites touristiques : photos, quartier et tarifs indicatifs en un coup d'œil, pour explorer la ville en toute confiance.</p>
+
+<!-- ===== HERO ===== -->
+<section class="relative overflow-hidden" style="background: linear-gradient(135deg, #4a2c19 0%, #6b4226 50%, #a9744f 100%);">
+    <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle, #fff 1px, transparent 1px); background-size: 24px 24px;"></div>
+    <div class="relative max-w-3xl mx-auto px-4 py-16 text-center text-white">
+        <div class="text-4xl mb-4">🌸 🌼 🌺</div>
+        <h1 class="text-3xl sm:text-4xl font-extrabold mb-3 leading-tight">
+            Trouvez où sortir, dormir<br class="hidden sm:block"> et manger à Kinshasa
+        </h1>
+        <p class="text-brun-100 text-base sm:text-lg max-w-xl mx-auto opacity-90">
+            Hôtels, restaurants, bars et sites touristiques : photos, quartier et tarifs indicatifs pour explorer la ville en toute confiance.
+        </p>
+    </div>
 </section>
-<div class="fleur-separateur">🌸 🌼 🌺 🌷 🌻</div>
 
-<form class="barre-recherche" method="get">
-    <input type="text" name="q" value="{{ terme }}" placeholder="Rechercher un nom, un quartier...">
-    <select name="categorie">
-        <option value="">Toutes les catégories</option>
-        {% for categorie in categories %}
-            <option value="{{ categorie.slug }}" {% if categorie.slug == categorie_active %}selected{% endif %}>{{ categorie.nom }}</option>
-        {% endfor %}
-    </select>
-    <select name="commune">
-        <option value="">Toutes les communes</option>
-        {% for commune in communes %}
-            <option value="{{ commune.id }}" {% if commune.id|stringformat:"s" == commune_active %}selected{% endif %}>{{ commune.nom }}</option>
-        {% endfor %}
-    </select>
-    <button class="bouton" type="submit">Rechercher</button>
-</form>
-
-{% if etablissements %}
-<div class="galerie">
-    {% for etablissement in etablissements %}
-        <a class="carte" href="{{ etablissement.get_absolute_url }}">
-            <div class="carte-image"
-                 {% with image=etablissement.image_principale %}
-                 {% if image %}style="background-image:url('{{ image.image.url }}');"{% endif %}
-                 {% endwith %}>
-                <span class="carte-categorie">{{ etablissement.categorie.nom }}</span>
-            </div>
-            <div class="carte-corps">
-                <h3>{{ etablissement.nom }}</h3>
-                <span class="carte-lieu">📍 {{ etablissement.commune.nom }}</span>
-                {% if etablissement.prix_minimum %}
-                    <span class="carte-prix">
-                        à partir de {{ etablissement.prix_minimum }} $
-                        {% if etablissement.prix_maximum %}— jusqu'à {{ etablissement.prix_maximum }} ${% endif %}
-                    </span>
-                {% endif %}
-                <span class="bouton bouton-clair">Voir la fiche</span>
-            </div>
-        </a>
-    {% endfor %}
+<!-- ===== SEARCH BAR ===== -->
+<div class="bg-white shadow-sm sticky top-[60px] z-40 border-b border-brun-100">
+    <div class="max-w-5xl mx-auto px-4 py-3">
+        <form class="flex flex-wrap gap-2 items-center justify-center" method="get">
+            <input type="text" name="q" value="{{ terme }}" placeholder="🔍  Nom, quartier..."
+                   class="flex-1 min-w-[180px] max-w-xs px-4 py-2 rounded-full border border-brun-200 bg-brun-50 text-brun-900 placeholder-brun-400 text-sm focus:border-brun-500 focus:bg-white transition-colors">
+            <select name="categorie" class="flex-1 min-w-[160px] max-w-[200px] px-4 py-2 rounded-full border border-brun-200 bg-brun-50 text-brun-800 text-sm focus:border-brun-500 focus:bg-white transition-colors">
+                <option value="">Toutes les catégories</option>
+                {% for categorie in categories %}
+                    <option value="{{ categorie.slug }}" {% if categorie.slug == categorie_active %}selected{% endif %}>{{ categorie.nom }}</option>
+                {% endfor %}
+            </select>
+            <select name="commune" class="flex-1 min-w-[160px] max-w-[200px] px-4 py-2 rounded-full border border-brun-200 bg-brun-50 text-brun-800 text-sm focus:border-brun-500 focus:bg-white transition-colors">
+                <option value="">Toutes les communes</option>
+                {% for commune in communes %}
+                    <option value="{{ commune.id }}" {% if commune.id|stringformat:"s" == commune_active %}selected{% endif %}>{{ commune.nom }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="bg-brun-700 hover:bg-brun-800 text-white font-semibold px-5 py-2 rounded-full transition-colors text-sm shadow-sm">
+                Rechercher
+            </button>
+        </form>
+    </div>
 </div>
-{% else %}
-    <p style="text-align:center; color:#8a7868; padding: 2rem;">Aucun établissement ne correspond à votre recherche pour le moment.</p>
-{% endif %}
+
+<!-- ===== GALLERY GRID ===== -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    {% if etablissements %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {% for etablissement in etablissements %}
+                <a href="{{ etablissement.get_absolute_url }}" class="group bg-white rounded-2xl overflow-hidden shadow-fleur border border-brun-100 flex flex-col hover:-translate-y-1 hover:shadow-fleur-lg transition-all duration-200 no-underline">
+                    <!-- Card image -->
+                    <div class="relative h-48 bg-brun-100 overflow-hidden"
+                         {% with image=etablissement.image_principale %}
+                         {% if image %}style="background-image:url('{{ image.image.url }}'); background-size:cover; background-position:center;"{% endif %}
+                         {% endwith %}>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+                        <span class="absolute top-3 left-3 bg-brun-700/90 text-white text-xs font-semibold px-3 py-1 rounded-full backdrop-blur-sm">
+                            {{ etablissement.categorie.nom }}
+                        </span>
+                        {% if not etablissement.image_principale %}
+                            <div class="flex items-center justify-center h-full text-4xl opacity-30">🏛️</div>
+                        {% endif %}
+                    </div>
+                    <!-- Card body -->
+                    <div class="p-4 flex flex-col gap-1.5 flex-1">
+                        <h3 class="font-bold text-brun-800 text-base leading-snug group-hover:text-brun-700 transition-colors">{{ etablissement.nom }}</h3>
+                        <p class="text-brun-500 text-sm flex items-center gap-1">
+                            <span>📍</span> {{ etablissement.commune.nom }}
+                        </p>
+                        {% if etablissement.prix_minimum %}
+                            <p class="text-brun-700 font-bold text-sm mt-auto pt-1">
+                                À partir de <span class="text-base">{{ etablissement.prix_minimum }} $</span>
+                                {% if etablissement.prix_maximum %}<span class="font-normal text-brun-400"> — {{ etablissement.prix_maximum }} $</span>{% endif %}
+                            </p>
+                        {% endif %}
+                        <span class="mt-2 inline-block text-center bg-brun-50 hover:bg-brun-100 text-brun-700 border border-brun-200 font-semibold text-sm px-4 py-1.5 rounded-full transition-colors">
+                            Voir la fiche →
+                        </span>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-20">
+            <p class="text-6xl mb-4">🌿</p>
+            <p class="text-brun-500 text-lg font-medium">Aucun établissement ne correspond à votre recherche.</p>
+            <p class="text-brun-400 text-sm mt-1">Essayez d'élargir vos critères de recherche.</p>
+        </div>
+    {% endif %}
+</div>
+
 {% endblock %}

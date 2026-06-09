@@ -3,18 +3,60 @@
 {% block titre %}Nouvelle annonce — Découvrir Kinshasa{% endblock %}
 
 {% block contenu %}
-<div class="encadre-formulaire">
-    <h1>🌼 Rédiger une annonce</h1>
-    <p class="intro">
-        Cette annonce sera envoyée par email et WhatsApp à tous les abonnés
-        à la newsletter ainsi qu'aux utilisateurs inscrits ayant activé les
-        notifications.
-    </p>
-    <p><a href="{% url 'notifications:annonces' %}">← Retour aux annonces</a></p>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button class="bouton" type="submit">Enregistrer l'annonce</button>
-    </form>
+<div class="min-h-[70vh] flex items-center justify-center px-4 py-12">
+    <div class="w-full max-w-lg">
+        <nav class="mb-5">
+            <a href="{% url 'notifications:annonces' %}" class="text-brun-500 hover:text-brun-700 text-sm font-medium flex items-center gap-1 w-fit transition-colors">
+                ← Retour aux annonces
+            </a>
+        </nav>
+
+        <div class="bg-white rounded-2xl shadow-fleur border border-brun-100 p-8">
+            <div class="text-center mb-6">
+                <p class="text-4xl mb-3">🌼</p>
+                <h1 class="text-2xl font-extrabold text-brun-800">Rédiger une annonce</h1>
+                <p class="text-brun-500 text-sm mt-1">
+                    Cette annonce sera envoyée par email et WhatsApp à tous les abonnés à la newsletter ainsi qu'aux utilisateurs inscrits ayant activé les notifications.
+                </p>
+            </div>
+
+            <form method="post" class="space-y-4">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div>
+                        <label for="{{ field.id_for_label }}" class="block text-sm font-semibold text-brun-700 mb-1">
+                            {{ field.label }}
+                            {% if field.field.required %}<span class="text-brun-400">*</span>{% endif %}
+                        </label>
+                        {% if field.field.widget.__class__.__name__ == 'Textarea' %}
+                            <textarea name="{{ field.html_name }}" id="{{ field.id_for_label }}" rows="5"
+                                      class="w-full px-4 py-2.5 rounded-xl border border-brun-200 bg-brun-50 text-brun-900 text-sm form-field focus:border-brun-500 focus:bg-white transition-colors resize-none"
+                                      {% if field.field.required %}required{% endif %}>{% if field.value %}{{ field.value }}{% endif %}</textarea>
+                        {% elif field.field.widget.__class__.__name__ == 'Select' %}
+                            <select name="{{ field.html_name }}" id="{{ field.id_for_label }}"
+                                    class="w-full px-4 py-2.5 rounded-xl border border-brun-200 bg-brun-50 text-brun-900 text-sm form-field focus:border-brun-500 focus:bg-white transition-colors">
+                                {% for val, label in field.field.choices %}
+                                    <option value="{{ val }}" {% if field.value == val|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        {% else %}
+                            <input type="{{ field.field.widget.input_type }}"
+                                   name="{{ field.html_name }}"
+                                   id="{{ field.id_for_label }}"
+                                   {% if field.value %}value="{{ field.value }}"{% endif %}
+                                   class="w-full px-4 py-2.5 rounded-xl border border-brun-200 bg-brun-50 text-brun-900 text-sm form-field focus:border-brun-500 focus:bg-white transition-colors"
+                                   {% if field.field.required %}required{% endif %}>
+                        {% endif %}
+                        {% if field.errors %}
+                            <p class="text-red-600 text-xs mt-1">{{ field.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                <button type="submit" class="w-full bg-brun-700 hover:bg-brun-800 text-white font-bold py-3 rounded-xl transition-colors shadow-fleur text-sm mt-2">
+                    Enregistrer l'annonce
+                </button>
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock %}

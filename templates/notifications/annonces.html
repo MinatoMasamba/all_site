@@ -3,32 +3,68 @@
 {% block titre %}Annonces — Découvrir Kinshasa{% endblock %}
 
 {% block contenu %}
-<section class="hero">
-    <h1>📣 Offres et nouveautés</h1>
-    <p>Rédigez une annonce et diffusez-la par email et WhatsApp à tous les abonnés de la plateforme.</p>
-    <p><a class="bouton" href="{% url 'notifications:creer_annonce' %}">+ Rédiger une annonce</a></p>
-</section>
-
-{% if annonces %}
-<div class="detail-etablissement">
-    {% for annonce in annonces %}
-        <div class="fiche-info" style="margin-bottom:1rem;">
-            <h3 style="margin-top:0; color: var(--couleur-marron-fonce);">{{ annonce.titre }}</h3>
-            {% if annonce.etablissement %}<p>📍 {{ annonce.etablissement.nom }}</p>{% endif %}
-            <p>{{ annonce.message|linebreaksbr }}</p>
-            {% if annonce.est_envoyee %}
-                <p>✅ Diffusée le {{ annonce.envoyee_le|date:"d/m/Y H:i" }} —
-                   {{ annonce.nombre_emails_envoyes }} email(s), {{ annonce.nombre_whatsapp_envoyes }} message(s) WhatsApp.</p>
-            {% else %}
-                <form method="post" action="{% url 'notifications:diffuser' annonce_id=annonce.id %}">
-                    {% csrf_token %}
-                    <button class="bouton" type="submit">Diffuser maintenant par email et WhatsApp</button>
-                </form>
-            {% endif %}
+<div class="bg-brun-50 border-b border-brun-100">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-extrabold text-brun-800 flex items-center gap-2">📣 Offres et nouveautés</h1>
+            <p class="text-brun-500 text-sm mt-1">Rédigez une annonce et diffusez-la par email et WhatsApp à tous les abonnés.</p>
         </div>
-    {% endfor %}
+        <a href="{% url 'notifications:creer_annonce' %}"
+           class="bg-brun-700 hover:bg-brun-800 text-white font-semibold px-5 py-2.5 rounded-full transition-colors shadow-fleur text-sm inline-flex items-center gap-1 w-fit">
+            + Rédiger une annonce
+        </a>
+    </div>
 </div>
-{% else %}
-    <p style="text-align:center; color:#8a7868; padding: 2rem;">Aucune annonce pour le moment.</p>
-{% endif %}
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+    {% if annonces %}
+        <div class="space-y-4">
+            {% for annonce in annonces %}
+                <div class="bg-white rounded-2xl border border-brun-100 shadow-fleur p-5 sm:p-6">
+                    <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-3">
+                        <div>
+                            <h3 class="font-bold text-brun-800 text-base">{{ annonce.titre }}</h3>
+                            {% if annonce.etablissement %}
+                                <p class="text-brun-500 text-sm mt-0.5 flex items-center gap-1">📍 {{ annonce.etablissement.nom }}</p>
+                            {% endif %}
+                        </div>
+                        {% if annonce.est_envoyee %}
+                            <span class="bg-emerald-100 text-emerald-700 text-xs font-semibold px-3 py-1 rounded-full shrink-0">✅ Diffusée</span>
+                        {% else %}
+                            <span class="bg-brun-100 text-brun-600 text-xs font-semibold px-3 py-1 rounded-full shrink-0">En attente</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="bg-brun-50 rounded-xl p-4 text-brun-700 text-sm leading-relaxed mb-4">
+                        {{ annonce.message|linebreaksbr }}
+                    </div>
+
+                    {% if annonce.est_envoyee %}
+                        <div class="flex flex-wrap gap-4 text-sm text-brun-500">
+                            <span>📅 Diffusée le {{ annonce.envoyee_le|date:"d/m/Y à H:i" }}</span>
+                            <span>📧 {{ annonce.nombre_emails_envoyes }} email(s)</span>
+                            <span>💬 {{ annonce.nombre_whatsapp_envoyes }} message(s) WhatsApp</span>
+                        </div>
+                    {% else %}
+                        <form method="post" action="{% url 'notifications:diffuser' annonce_id=annonce.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="bg-brun-700 hover:bg-brun-800 text-white font-semibold px-5 py-2 rounded-full text-sm transition-colors shadow-fleur">
+                                📤 Diffuser par email et WhatsApp
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-20">
+            <p class="text-6xl mb-4">📬</p>
+            <p class="text-brun-500 text-lg font-medium">Aucune annonce pour le moment.</p>
+            <p class="text-brun-400 text-sm mt-1 mb-6">Créez votre première annonce pour informer vos abonnés.</p>
+            <a href="{% url 'notifications:creer_annonce' %}" class="bg-brun-700 hover:bg-brun-800 text-white font-semibold px-6 py-2.5 rounded-full transition-colors shadow-fleur text-sm">
+                + Rédiger une annonce
+            </a>
+        </div>
+    {% endif %}
+</div>
 {% endblock %}

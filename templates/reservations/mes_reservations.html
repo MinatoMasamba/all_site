@@ -3,43 +3,78 @@
 {% block titre %}Mes réservations — Découvrir Kinshasa{% endblock %}
 
 {% block contenu %}
-<section class="hero">
-    <h1>🌺 Mes réservations</h1>
-</section>
-
-{% if reservations %}
-<div class="detail-etablissement">
-    {% for reservation in reservations %}
-        <div class="fiche-info" style="margin-bottom:1rem;">
-            <h3 style="margin-top:0; color: var(--couleur-marron-fonce);">
-                <a href="{{ reservation.etablissement.get_absolute_url }}">{{ reservation.etablissement.nom }}</a>
-            </h3>
-            <p>📅 {{ reservation.date_prevue|date:"d/m/Y H:i" }} · 👥 {{ reservation.nombre_personnes }} personne(s)</p>
-            <p>Statut : <strong>{{ reservation.get_statut_display }}</strong> ·
-               Paiement : <strong>{{ reservation.get_mode_paiement_display }}</strong></p>
-
-            {% with paiement=reservation.paiement %}
-                {% if paiement %}
-                    <p>
-                        💰 {{ paiement.montant }} $ —
-                        <strong>{{ paiement.get_statut_display }}</strong>
-                    </p>
-                    {% if paiement.statut == "bloque" %}
-                        {% if paiement.confirme_par_client %}
-                            <p>✅ Vous avez confirmé votre présence. En attente de la confirmation de l'établissement.</p>
-                        {% else %}
-                            <form method="post" action="{% url 'reservations:confirmer_presence_client' reservation_id=reservation.id %}">
-                                {% csrf_token %}
-                                <button class="bouton bouton-clair" type="submit">Je confirme être arrivé(e) sur place</button>
-                            </form>
-                        {% endif %}
-                    {% endif %}
-                {% endif %}
-            {% endwith %}
-        </div>
-    {% endfor %}
+<div class="bg-brun-50 border-b border-brun-100">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+        <h1 class="text-2xl font-extrabold text-brun-800 flex items-center gap-2">🌺 Mes réservations</h1>
+        <p class="text-brun-500 text-sm mt-1">Suivez l'état de vos réservations et confirmez votre présence sur place.</p>
+    </div>
 </div>
-{% else %}
-    <p style="text-align:center; color:#8a7868; padding: 2rem;">Vous n'avez pas encore de réservation.</p>
-{% endif %}
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+    {% if reservations %}
+        <div class="space-y-4">
+            {% for reservation in reservations %}
+                <div class="bg-white rounded-2xl border border-brun-100 shadow-fleur p-5 sm:p-6">
+                    <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-3">
+                        <div>
+                            <h3 class="font-bold text-brun-800 text-base">
+                                <a href="{{ reservation.etablissement.get_absolute_url }}" class="hover:text-brun-600 transition-colors">
+                                    {{ reservation.etablissement.nom }}
+                                </a>
+                            </h3>
+                            <p class="text-brun-500 text-sm mt-0.5 flex flex-wrap gap-3">
+                                <span>📅 {{ reservation.date_prevue|date:"d/m/Y à H:i" }}</span>
+                                <span>👥 {{ reservation.nombre_personnes }} personne(s)</span>
+                            </p>
+                        </div>
+                        <div class="flex flex-wrap gap-2 shrink-0">
+                            <span class="bg-brun-100 text-brun-700 text-xs font-semibold px-3 py-1 rounded-full">
+                                {{ reservation.get_statut_display }}
+                            </span>
+                            <span class="bg-brun-50 text-brun-500 text-xs font-medium px-3 py-1 rounded-full border border-brun-100">
+                                {{ reservation.get_mode_paiement_display }}
+                            </span>
+                        </div>
+                    </div>
+
+                    {% with paiement=reservation.paiement %}
+                        {% if paiement %}
+                            <div class="bg-brun-50 rounded-xl p-3 mt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <p class="text-sm">
+                                    <span class="font-bold text-brun-800">💰 {{ paiement.montant }} $</span>
+                                    <span class="text-brun-500 ml-2">— {{ paiement.get_statut_display }}</span>
+                                </p>
+                                {% if paiement.statut == "bloque" %}
+                                    {% if paiement.confirme_par_client %}
+                                        <p class="text-emerald-700 text-sm font-medium flex items-center gap-1">
+                                            ✅ Présence confirmée. En attente de l'établissement.
+                                        </p>
+                                    {% else %}
+                                        <form method="post" action="{% url 'reservations:confirmer_presence_client' reservation_id=reservation.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2 rounded-full text-sm transition-colors">
+                                                ✅ Je confirme être arrivé(e) sur place
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                {% elif paiement.statut == "libere" %}
+                                    <p class="text-emerald-700 text-sm font-medium">✅ Paiement libéré — votre séjour est validé</p>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-20">
+            <p class="text-6xl mb-4">📋</p>
+            <p class="text-brun-500 text-lg font-medium">Vous n'avez pas encore de réservation.</p>
+            <p class="text-brun-400 text-sm mt-1 mb-6">Explorez la galerie pour trouver votre prochain endroit à Kinshasa.</p>
+            <a href="{% url 'listings:galerie' %}" class="bg-brun-700 hover:bg-brun-800 text-white font-semibold px-6 py-2.5 rounded-full transition-colors shadow-fleur text-sm">
+                Voir la galerie
+            </a>
+        </div>
+    {% endif %}
+</div>
 {% endblock %}

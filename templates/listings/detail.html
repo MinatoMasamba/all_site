@@ -3,47 +3,98 @@
 {% block titre %}{{ etablissement.nom }} — Découvrir Kinshasa{% endblock %}
 
 {% block contenu %}
-<section class="detail-etablissement">
-    <p><a href="{% url 'listings:galerie' %}">← Retour à la galerie</a></p>
-    <h1>{{ etablissement.nom }}</h1>
-    <p class="carte-lieu">📍 {{ etablissement.commune.nom }}{% if etablissement.adresse %} — {{ etablissement.adresse }}{% endif %} · {{ etablissement.categorie.nom }}</p>
+<div class="max-w-4xl mx-auto px-4 sm:px-6 py-8">
 
+    <!-- Breadcrumb -->
+    <nav class="mb-5">
+        <a href="{% url 'listings:galerie' %}" class="text-brun-500 hover:text-brun-700 text-sm font-medium flex items-center gap-1 w-fit transition-colors">
+            ← Retour à la galerie
+        </a>
+    </nav>
+
+    <!-- Header -->
+    <div class="mb-6">
+        <div class="flex flex-wrap items-center gap-2 mb-2">
+            <span class="bg-brun-700 text-white text-xs font-semibold px-3 py-1 rounded-full">{{ etablissement.categorie.nom }}</span>
+            <span class="text-brun-400 text-sm flex items-center gap-1">📍 {{ etablissement.commune.nom }}{% if etablissement.adresse %} — {{ etablissement.adresse }}{% endif %}</span>
+        </div>
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-brun-800 leading-tight">{{ etablissement.nom }}</h1>
+    </div>
+
+    <!-- Photo gallery -->
     {% if etablissement.images.all %}
-        <div class="detail-galerie">
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6 rounded-2xl overflow-hidden">
             {% for image in etablissement.images.all %}
-                <img src="{{ image.image.url }}" alt="{{ image.legende|default:etablissement.nom }}">
+                <img src="{{ image.image.url }}" alt="{{ image.legende|default:etablissement.nom }}"
+                     class="w-full h-44 object-cover {% if forloop.first %}col-span-2 sm:col-span-2 h-64{% endif %} hover:opacity-95 transition-opacity cursor-pointer">
             {% endfor %}
+        </div>
+    {% else %}
+        <div class="h-52 bg-brun-100 rounded-2xl flex items-center justify-center mb-6">
+            <span class="text-6xl opacity-20">🏛️</span>
         </div>
     {% endif %}
 
-    {% if etablissement.description %}
-        <p>{{ etablissement.description|linebreaks }}</p>
-    {% endif %}
+    <!-- Description + Info side by side on large screens -->
+    <div class="flex flex-col lg:flex-row gap-6">
 
-    <div class="fiche-info">
-        <p><strong>Tarif indicatif :</strong>
-            {% if etablissement.prix_minimum %}
-                à partir de {{ etablissement.prix_minimum }} $
-                {% if etablissement.prix_maximum %}jusqu'à {{ etablissement.prix_maximum }} ${% endif %}
+        <!-- Description -->
+        <div class="flex-1">
+            {% if etablissement.description %}
+                <div class="prose max-w-none text-brun-700 text-base leading-relaxed">
+                    {{ etablissement.description|linebreaks }}
+                </div>
             {% else %}
-                Non communiqué — contactez l'établissement
+                <p class="text-brun-400 italic">Aucune description disponible pour le moment.</p>
             {% endif %}
-        </p>
-        {% if etablissement.telephone %}
-            <p><strong>Téléphone :</strong> {{ etablissement.telephone }}</p>
-        {% endif %}
+        </div>
+
+        <!-- Info card -->
+        <div class="lg:w-72 shrink-0">
+            <div class="bg-brun-50 rounded-2xl border border-brun-200 p-5 space-y-3 sticky top-24">
+                <h3 class="font-bold text-brun-800 text-base">Informations pratiques</h3>
+                <div class="h-px bg-brun-200"></div>
+
+                <div>
+                    <p class="text-xs text-brun-400 uppercase font-semibold tracking-wide mb-0.5">Tarif indicatif</p>
+                    {% if etablissement.prix_minimum %}
+                        <p class="text-brun-700 font-bold text-base">
+                            À partir de {{ etablissement.prix_minimum }} $
+                            {% if etablissement.prix_maximum %}
+                                <span class="font-normal text-brun-500 text-sm"> → {{ etablissement.prix_maximum }} $</span>
+                            {% endif %}
+                        </p>
+                    {% else %}
+                        <p class="text-brun-500 text-sm">Non communiqué — contactez l'établissement</p>
+                    {% endif %}
+                </div>
+
+                {% if etablissement.telephone %}
+                    <div>
+                        <p class="text-xs text-brun-400 uppercase font-semibold tracking-wide mb-0.5">Téléphone</p>
+                        <p class="text-brun-700 font-medium">{{ etablissement.telephone }}</p>
+                    </div>
+                {% endif %}
+
+                <div class="h-px bg-brun-200"></div>
+
+                {% if user.is_authenticated %}
+                    {% if user.est_proprietaire or user.est_mediateur %}
+                        <p class="text-brun-400 text-sm text-center">Les comptes propriétaire et médiateur ne peuvent pas réserver.</p>
+                    {% else %}
+                        <a href="{% url 'reservations:reserver' slug=etablissement.slug %}"
+                           class="block text-center bg-brun-700 hover:bg-brun-800 text-white font-semibold px-4 py-2.5 rounded-full transition-colors shadow-fleur w-full">
+                            Réserver une place
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'accounts:connexion' %}?next={% url 'reservations:reserver' slug=etablissement.slug %}"
+                       class="block text-center bg-brun-700 hover:bg-brun-800 text-white font-semibold px-4 py-2.5 rounded-full transition-colors shadow-fleur w-full">
+                        Se connecter pour réserver
+                    </a>
+                {% endif %}
+            </div>
+        </div>
     </div>
-
-    <p style="margin-top:1.5rem;">
-        {% if user.is_authenticated %}
-            {% if user.est_proprietaire or user.est_mediateur %}
-                <span style="color:#8a7868;">Les comptes propriétaire et médiateur ne peuvent pas réserver.</span>
-            {% else %}
-                <a class="bouton" href="{% url 'reservations:reserver' slug=etablissement.slug %}">Réserver une place</a>
-            {% endif %}
-        {% else %}
-            <a class="bouton" href="{% url 'accounts:connexion' %}?next={% url 'reservations:reserver' slug=etablissement.slug %}">Se connecter pour réserver</a>
-        {% endif %}
-    </p>
-</section>
+</div>
 {% endblock %}
