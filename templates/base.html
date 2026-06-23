@@ -60,14 +60,21 @@
 
     <!-- ===== NAVBAR ===== -->
     <header class="nav-glass sticky top-0 z-50 shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4 flex-wrap">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
             <!-- Logo -->
             <a href="{% url 'listings:galerie' %}" class="flex items-center gap-2 text-white font-bold text-xl no-underline hover:opacity-90 transition-opacity">
                 <span class="text-2xl">🌸</span>
                 <span>Découvrir Kinshasa</span>
             </a>
+            <!-- Bouton hamburger (mobile uniquement) -->
+            <button id="nav-toggle" type="button" aria-controls="nav-menu" aria-expanded="false" aria-label="Ouvrir le menu"
+                    class="md:hidden inline-flex items-center justify-center p-2 rounded-lg text-white hover:bg-white/10 transition-colors">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
             <!-- Nav links -->
-            <nav class="flex items-center gap-1 flex-wrap">
+            <nav id="nav-menu" class="hidden md:flex md:items-center md:gap-1 w-full md:w-auto flex-col md:flex-row items-stretch absolute md:relative top-full left-0 md:top-auto md:left-auto bg-brun-700 md:bg-transparent px-4 sm:px-6 md:px-0 py-3 md:py-0 shadow-lg md:shadow-none">
                 <a href="{% url 'listings:galerie' %}" class="text-brun-100 hover:text-white font-medium px-3 py-1.5 rounded-full hover:bg-white/10 transition-all text-sm">
                     Galerie
                 </a>
@@ -187,6 +194,54 @@
             </div>
         </div>
     </footer>
+
+    <script>
+        (function () {
+            var toggle = document.getElementById('nav-toggle');
+            var nav = document.getElementById('nav-menu');
+            if (!toggle || !nav) return;
+
+            function closeNav() {
+                nav.classList.add('hidden');
+                toggle.setAttribute('aria-expanded', 'false');
+            }
+            function openNav() {
+                nav.classList.remove('hidden');
+                toggle.setAttribute('aria-expanded', 'true');
+            }
+
+            toggle.addEventListener('click', function (e) {
+                e.stopPropagation();
+                if (nav.classList.contains('hidden')) {
+                    openNav();
+                } else {
+                    closeNav();
+                }
+            });
+
+            nav.querySelectorAll('a, button').forEach(function (el) {
+                el.addEventListener('click', closeNav);
+            });
+
+            document.addEventListener('click', function (e) {
+                if (!nav.classList.contains('hidden') && !nav.contains(e.target) && !toggle.contains(e.target)) {
+                    closeNav();
+                }
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') closeNav();
+            });
+
+            window.addEventListener('resize', function () {
+                if (window.innerWidth >= 768) {
+                    nav.classList.remove('hidden');
+                } else {
+                    closeNav();
+                }
+            });
+        })();
+    </script>
 
 </body>
 </html>
