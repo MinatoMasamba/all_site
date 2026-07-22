@@ -3,334 +3,164 @@
 
 {% block titre %}{{ etablissement.nom }} — Découvrir Kinshasa{% endblock %}
 
+{% block extra_css %}
+<style>
+    .svc { display:inline-flex; align-items:center; gap:7px; padding:8px 13px; border-radius:11px; font-size:13px; background:var(--color-surface); color:#cfd3e5; border:1px solid var(--color-divider); }
+    .svc i { font-size:16px; color:var(--color-accent); }
+    .stat-box { flex:1; background:var(--color-surface); border-radius:14px; padding:12px; text-align:center; }
+    .carousel-dot { width:8px; height:8px; border-radius:50%; background:var(--color-neutral-800); }
+    .carousel-dot.on { background:var(--color-accent); }
+</style>
+{% endblock %}
+
 {% block contenu %}
-<div class="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+<div class="max-w-4xl mx-auto">
 
-    <!-- Breadcrumb -->
-    <nav class="mb-5">
-        <a href="{% url 'listings:galerie' %}" class="text-brun-500 hover:text-brun-700 text-sm font-medium flex items-center gap-1 w-fit transition-colors">
-            ← Retour à la galerie
-        </a>
-    </nav>
-
-    <!-- Header -->
-    <div class="mb-6">
-        <div class="flex flex-wrap items-center gap-2 mb-2">
-            <span class="bg-brun-700 text-white text-xs font-semibold px-3 py-1 rounded-full">{{ etablissement.categorie.nom }}</span>
-            <span class="text-brun-400 text-sm flex items-center gap-1">📍 {{ etablissement.commune.nom }}{% if etablissement.adresse %} — {{ etablissement.adresse }}{% endif %}</span>
+    <!-- Photos -->
+    <div style="position:relative;height:300px;background:var(--color-surface)">
+        {% with images=etablissement.images.all %}
+        {% if images %}
+            <div id="carousel-track" class="flex" style="height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none" onmouseenter="clearInterval(window._carouselAuto)" onmouseleave="window._carouselAuto=setInterval(()=>goToSlide(window._carouselIdx+1),4000)">
+                {% for image in images %}
+                    <div class="flex-none" style="width:100%;height:100%;scroll-snap-align:start" onclick="openLightbox('{{ image.src }}')">
+                        <img src="{{ image.src }}" alt="{{ image.legende|default:etablissement.nom }}" style="width:100%;height:100%;object-fit:cover;cursor:zoom-in">
+                    </div>
+                {% endfor %}
+            </div>
+            <div style="position:absolute;bottom:14px;left:0;right:0;display:flex;justify-content:center;gap:6px">
+                {% for image in images %}
+                    <button class="carousel-dot {% if forloop.first %}on{% endif %}" onclick="goToSlide({{ forloop.counter0 }})" aria-label="Image {{ forloop.counter }}"></button>
+                {% endfor %}
+            </div>
+            <div id="lightbox" onclick="closeLightbox()" style="display:none;position:fixed;inset:0;background:rgba(9,10,17,.92);z-index:100;align-items:center;justify-content:center;padding:20px">
+                <img id="lightbox-img" src="" alt="" style="max-width:100%;max-height:100%;border-radius:12px;object-fit:contain">
+            </div>
+            <script>
+                (function(){
+                    const track = document.getElementById('carousel-track');
+                    const dots = document.querySelectorAll('.carousel-dot');
+                    window._carouselIdx = 0;
+                    window.goToSlide = function(i){
+                        const slides = track.children;
+                        if(!slides.length) return;
+                        i = (i + slides.length) % slides.length;
+                        track.scrollTo({left: slides[i].offsetLeft, behavior:'smooth'});
+                        dots.forEach((d,di)=>d.classList.toggle('on', di===i));
+                        window._carouselIdx = i;
+                    };
+                    window.openLightbox = function(src){
+                        document.getElementById('lightbox-img').src = src;
+                        document.getElementById('lightbox').style.display = 'flex';
+                    };
+                    window.closeLightbox = function(){ document.getElementById('lightbox').style.display = 'none'; };
+                    document.addEventListener('keydown', e => { if(e.key === 'Escape') closeLightbox(); });
+                    window._carouselAuto = setInterval(() => goToSlide(window._carouselIdx + 1), 4000);
+                })();
+            </script>
+        {% else %}
+            <div class="flex items-center justify-center" style="width:100%;height:100%;color:var(--color-neutral-700);font-size:64px"><i class="ph ph-image"></i></div>
+        {% endif %}
+        {% endwith %}
+        <div class="absolute" style="position:absolute;top:16px;left:16px">
+            <a href="{% url 'listings:galerie' %}" class="flex items-center justify-center no-underline" style="width:40px;height:40px;border-radius:50%;background:rgba(15,16,25,.6);color:#fff;font-size:20px"><i class="ph ph-arrow-left"></i></a>
         </div>
-        <h1 class="text-3xl sm:text-4xl font-extrabold text-brun-800 leading-tight">{{ etablissement.nom }}</h1>
     </div>
 
-    <!-- Photo carousel -->
-    {% if etablissement.images.all %}
-        <div class="relative mb-6 group" id="carousel">
-            <!-- Slide track -->
-            <div id="carousel-track"
-                 class="flex gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory rounded-2xl"
-                 style="scrollbar-width:none; -ms-overflow-style:none;"
-                 onmouseenter="pauseAuto()" onmouseleave="resumeAuto()"
-                 ontouchstart="pauseAuto()" ontouchend="resumeAuto()">
-                {% for image in etablissement.images.all %}
-                    <div class="snap-start shrink-0 rounded-2xl overflow-hidden cursor-pointer"
-                         style="width:85%; min-width:280px; max-width:640px;"
-                         onclick="openLightbox('{{ image.src }}')">
-                        <img src="{{ image.src }}"
-                             alt="{{ image.legende|default:etablissement.nom }}"
-                             class="w-full object-cover transition-transform duration-300 hover:scale-105"
-                             style="height:340px;">
-                        {% if image.legende %}
-                            <p class="text-xs text-brun-500 mt-1 px-1">{{ image.legende }}</p>
-                        {% endif %}
-                    </div>
-                {% endfor %}
+    <div class="px-4 sm:px-6 py-5 flex flex-col" style="gap:16px">
+        <div>
+            <div class="flex items-center gap-2 mb-2 flex-wrap">
+                <span class="tag tag-accent">{{ etablissement.categorie.nom }}</span>
+                <span style="font-size:12.5px;color:var(--color-neutral-500)"><i class="ph-fill ph-map-pin" style="font-size:13px;margin-right:3px"></i>{{ etablissement.commune.nom }}{% if etablissement.adresse %} · {{ etablissement.adresse }}{% endif %}</span>
             </div>
+            <h1 style="font-size:26px;line-height:1.15;color:var(--color-text);margin:0 0 8px;letter-spacing:-.02em">{{ etablissement.nom }}</h1>
+            {% if etablissement.evaluation %}
+                <div class="flex items-center gap-2" style="font-size:13.5px;color:#cfd3e5">
+                    <i class="ph-fill ph-star" style="color:#f0c96b"></i><b style="color:var(--color-text)">{{ etablissement.evaluation }}</b>
+                    {% if etablissement.nombre_avis %}<span style="color:var(--color-neutral-600)">({{ etablissement.nombre_avis }} avis)</span>{% endif %}
+                </div>
+            {% endif %}
+        </div>
 
-            <!-- Prev button -->
-            <button onclick="scrollCarousel(-1)"
-                    class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-brun-800 rounded-full w-10 h-10 flex items-center justify-center shadow-fleur opacity-0 group-hover:opacity-100 transition-opacity z-10 text-lg font-bold"
-                    aria-label="Image précédente">‹</button>
-            <!-- Next button -->
-            <button onclick="scrollCarousel(1)"
-                    class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-brun-800 rounded-full w-10 h-10 flex items-center justify-center shadow-fleur opacity-0 group-hover:opacity-100 transition-opacity z-10 text-lg font-bold"
-                    aria-label="Image suivante">›</button>
+        {% with cat=etablissement.categorie.nom|lower %}
+        {% if etablissement.nombre_chambres or etablissement.etoiles or etablissement.type_cuisine or etablissement.horaires %}
+        <div class="flex gap-2.5">
+            {% if 'hotel' in cat or 'hôtel' in cat %}
+                {% if etablissement.nombre_chambres %}<div class="stat-box"><i class="ph ph-bed" style="font-size:20px;color:var(--color-accent)"></i><div style="font-size:15px;font-weight:600;color:var(--color-text);margin-top:5px">{{ etablissement.nombre_chambres }}</div><div style="font-size:11px;color:var(--color-neutral-500)">chambres</div></div>{% endif %}
+                {% if etablissement.etoiles %}<div class="stat-box"><i class="ph-fill ph-star" style="font-size:20px;color:var(--color-accent)"></i><div style="font-size:15px;font-weight:600;color:var(--color-text);margin-top:5px">{% if etablissement.etoiles == "0" %}Non classé{% else %}{{ etablissement.etoiles }}★{% endif %}</div><div style="font-size:11px;color:var(--color-neutral-500)">classement</div></div>{% endif %}
+            {% endif %}
+            {% if 'restaurant' in cat or 'bar' in cat %}
+                {% if etablissement.type_cuisine %}<div class="stat-box"><i class="ph ph-fork-knife" style="font-size:20px;color:var(--color-accent)"></i><div style="font-size:15px;font-weight:600;color:var(--color-text);margin-top:5px">{{ etablissement.type_cuisine }}</div><div style="font-size:11px;color:var(--color-neutral-500)">cuisine</div></div>{% endif %}
+            {% endif %}
+            {% if etablissement.horaires %}<div class="stat-box"><i class="ph ph-clock" style="font-size:20px;color:var(--color-accent)"></i><div style="font-size:15px;font-weight:600;color:var(--color-text);margin-top:5px">Horaires</div><div style="font-size:11px;color:var(--color-neutral-500)">voir ci-dessous</div></div>{% endif %}
+        </div>
+        {% endif %}
+        {% endwith %}
 
-            <!-- Dot indicators -->
-            <div id="carousel-dots" class="flex justify-center gap-1.5 mt-3">
-                {% for image in etablissement.images.all %}
-                    <button class="carousel-dot w-2 h-2 rounded-full bg-brun-200 transition-colors"
-                            onclick="goToSlide({{ forloop.counter0 }})"
-                            aria-label="Image {{ forloop.counter }}"></button>
-                {% endfor %}
+        {% if etablissement.description %}
+        <div>
+            <h3 style="font-size:15px;color:var(--color-text);margin:0 0 6px">À propos</h3>
+            <div style="font-size:13.5px;line-height:1.65;color:var(--color-neutral-400)">{{ etablissement.description|linebreaks }}</div>
+        </div>
+        {% endif %}
+
+        {% if etablissement.services %}
+        <div>
+            <h3 style="font-size:15px;color:var(--color-text);margin:0 0 10px">Services &amp; équipements</h3>
+            <div class="flex flex-wrap gap-2">
+                {% for service in etablissement.services|split_virgule %}<span class="svc">{{ service }}</span>{% endfor %}
             </div>
         </div>
+        {% endif %}
 
-        <!-- Lightbox -->
-        <div id="lightbox" class="fixed inset-0 bg-black/90 z-50 hidden items-center justify-center p-4" onclick="closeLightbox()">
-            <img id="lightbox-img" src="" alt="" class="max-w-full max-h-full rounded-xl object-contain">
-            <button class="absolute top-4 right-5 text-white text-3xl font-light hover:text-brun-200 transition-colors" onclick="closeLightbox()">×</button>
+        {% if etablissement.horaires %}
+        <div style="background:var(--color-surface);border-radius:16px;border:1px solid var(--color-divider);padding:14px 16px">
+            <h3 style="font-size:14px;color:var(--color-text);margin:0 0 6px"><i class="ph ph-clock" style="color:var(--color-accent);margin-right:6px"></i>Horaires</h3>
+            <p style="font-size:13px;color:var(--color-neutral-400);white-space:pre-line;margin:0">{{ etablissement.horaires }}</p>
         </div>
+        {% endif %}
 
-        <script>
-            const track = document.getElementById('carousel-track');
-            const dots  = document.querySelectorAll('.carousel-dot');
-            let current = 0;
-            let autoTimer;
-
-            function updateDots(idx) {
-                dots.forEach((d, i) => {
-                    d.classList.toggle('bg-brun-700', i === idx);
-                    d.classList.toggle('bg-brun-200', i !== idx);
-                });
-                current = idx;
-            }
-
-            function goToSlide(idx) {
-                const slides = track.children;
-                if (!slides.length) return;
-                idx = (idx + slides.length) % slides.length;
-                track.scrollTo({ left: slides[idx].offsetLeft - track.offsetLeft, behavior: 'smooth' });
-                updateDots(idx);
-            }
-
-            function scrollCarousel(dir) {
-                const slides = track.children;
-                goToSlide(current + dir);
-            }
-
-            function startAuto() {
-                autoTimer = setInterval(() => goToSlide(current + 1), 3500);
-            }
-            function pauseAuto()  { clearInterval(autoTimer); }
-            function resumeAuto() { startAuto(); }
-
-            /* Sync dots with manual scroll / touch swipe */
-            track.addEventListener('scroll', () => {
-                const slides = Array.from(track.children);
-                let closest = 0, minDist = Infinity;
-                slides.forEach((s, i) => {
-                    const dist = Math.abs(s.getBoundingClientRect().left - track.getBoundingClientRect().left);
-                    if (dist < minDist) { minDist = dist; closest = i; }
-                });
-                if (closest !== current) updateDots(closest);
-            }, { passive: true });
-
-            /* Lightbox */
-            function openLightbox(src) {
-                document.getElementById('lightbox-img').src = src;
-                const lb = document.getElementById('lightbox');
-                lb.classList.remove('hidden');
-                lb.classList.add('flex');
-                pauseAuto();
-            }
-            function closeLightbox() {
-                const lb = document.getElementById('lightbox');
-                lb.classList.add('hidden');
-                lb.classList.remove('flex');
-                resumeAuto();
-            }
-            document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
-
-            /* Init */
-            updateDots(0);
-            startAuto();
-        </script>
-    {% else %}
-        <div class="h-52 bg-brun-100 rounded-2xl flex items-center justify-center mb-6">
-            <span class="text-6xl opacity-20">🏛️</span>
-        </div>
-    {% endif %}
-
-    <!-- Description + Info side by side on large screens -->
-    <div class="flex flex-col lg:flex-row gap-6">
-
-        <!-- Description -->
-        <div class="flex-1">
-            {% if etablissement.description %}
-                <div class="prose max-w-none text-brun-700 text-base leading-relaxed">
-                    {{ etablissement.description|linebreaks }}
-                </div>
-            {% else %}
-                <p class="text-brun-400 italic">Aucune description disponible pour le moment.</p>
-            {% endif %}
-
-            <!-- Services chips -->
-            {% if etablissement.services %}
-                <div class="mt-6">
-                    <h3 class="text-sm font-bold text-brun-700 uppercase tracking-wide mb-3">Services &amp; équipements</h3>
-                    <div class="flex flex-wrap gap-2">
-                        {% for service in etablissement.services|split_virgule %}
-                            <span class="bg-brun-100 text-brun-700 text-sm px-3 py-1 rounded-full border border-brun-200">{{ service }}</span>
-                        {% endfor %}
-                    </div>
-                </div>
-            {% endif %}
-
-            <!-- Horaires -->
-            {% if etablissement.horaires %}
-                <div class="mt-5 bg-brun-50 rounded-xl border border-brun-200 p-4">
-                    <h3 class="text-sm font-bold text-brun-700 uppercase tracking-wide mb-2">🕐 Horaires</h3>
-                    <p class="text-brun-600 text-sm whitespace-pre-line">{{ etablissement.horaires }}</p>
-                </div>
-            {% endif %}
-
-            <!-- Social & Web links -->
-            {% if etablissement.site_web or etablissement.facebook or etablissement.tiktok %}
-                <div class="mt-5 flex flex-wrap gap-2">
-                    {% if etablissement.site_web %}
-                        {% if etablissement.site_web|is_maps_url %}
-                            <a href="{{ etablissement.site_web }}" target="_blank" rel="noopener"
-                               class="flex items-center gap-2 bg-brun-100 hover:bg-brun-200 border border-brun-200 text-brun-700 text-sm font-medium px-4 py-2 rounded-full transition-colors">
-                                📍 Voir sur Google Maps
-                            </a>
-                        {% else %}
-                            <a href="{{ etablissement.site_web }}" target="_blank" rel="noopener"
-                               class="flex items-center gap-2 bg-brun-700 hover:bg-brun-800 text-white text-sm font-medium px-4 py-2 rounded-full transition-colors">
-                                🌐 Site web
-                            </a>
-                        {% endif %}
-                    {% endif %}
-                    {% if etablissement.facebook %}
-                        <a href="{{ etablissement.facebook }}" target="_blank" rel="noopener"
-                           class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-full transition-colors">
-                            Facebook
-                        </a>
-                    {% endif %}
-                    {% if etablissement.tiktok %}
-                        <a href="{{ etablissement.tiktok }}" target="_blank" rel="noopener"
-                           class="flex items-center gap-2 bg-black hover:bg-gray-900 text-white text-sm font-medium px-4 py-2 rounded-full transition-colors">
-                            TikTok
-                        </a>
-                    {% endif %}
-                </div>
-            {% endif %}
-        </div>
-
-        <!-- Info card -->
-        <div class="lg:w-72 shrink-0">
-            <div class="bg-brun-50 rounded-2xl border border-brun-200 p-5 space-y-3 sticky top-24">
-                <h3 class="font-bold text-brun-800 text-base">Informations pratiques</h3>
-                <div class="h-px bg-brun-200"></div>
-
-                <!-- Star rating -->
-                {% if etablissement.evaluation %}
-                    <div>
-                        <p class="text-xs text-brun-400 uppercase font-semibold tracking-wide mb-1">Note</p>
-                        <div class="flex items-center gap-2">
-                            <span class="text-yellow-500 text-base leading-none">
-                                {% with e=etablissement.evaluation %}
-                                    {% if e >= 1 %}★{% else %}☆{% endif %}{% if e >= 2 %}★{% else %}☆{% endif %}{% if e >= 3 %}★{% else %}☆{% endif %}{% if e >= 4 %}★{% else %}☆{% endif %}{% if e >= 5 %}★{% else %}☆{% endif %}
-                                {% endwith %}
-                            </span>
-                            <span class="text-brun-700 font-bold text-sm">{{ etablissement.evaluation }}</span>
-                            {% if etablissement.nombre_avis %}
-                                <span class="text-brun-400 text-xs">({{ etablissement.nombre_avis }} avis)</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                {% endif %}
-
-                <!-- Classification étoiles hôtel -->
-                {% with cat=etablissement.categorie.nom|lower %}
-                {% if 'hotel' in cat or 'hôtel' in cat %}
-                    {% if etablissement.etoiles %}
-                        <div>
-                            <p class="text-xs text-brun-400 uppercase font-semibold tracking-wide mb-0.5">Classement</p>
-                            <p class="text-brun-700 text-sm font-medium">
-                                {% if etablissement.etoiles == "0" %}Sans étoile{% else %}{{ etablissement.etoiles }} étoile{{ etablissement.etoiles|pluralize }}{% endif %}
-                                {% if etablissement.nombre_chambres %} · {{ etablissement.nombre_chambres }} chambres{% endif %}
-                            </p>
-                        </div>
-                    {% endif %}
-                {% endif %}
-                <!-- Type cuisine restaurant/bar -->
-                {% if 'restaurant' in cat or 'bar' in cat %}
-                    {% if etablissement.type_cuisine %}
-                        <div>
-                            <p class="text-xs text-brun-400 uppercase font-semibold tracking-wide mb-0.5">Cuisine</p>
-                            <p class="text-brun-700 text-sm">{{ etablissement.type_cuisine }}</p>
-                        </div>
-                    {% endif %}
-                {% endif %}
-                {% endwith %}
-
-                <div>
-                    <p class="text-xs text-brun-400 uppercase font-semibold tracking-wide mb-0.5">Tarif indicatif</p>
-                    {% if etablissement.prix_minimum %}
-                        <p class="text-brun-700 font-bold text-base">
-                            À partir de {{ etablissement.prix_minimum }} $
-                            {% if etablissement.prix_maximum %}
-                                <span class="font-normal text-brun-500 text-sm"> → {{ etablissement.prix_maximum }} $</span>
-                            {% endif %}
-                        </p>
-                    {% else %}
-                        <p class="text-brun-500 text-sm">Non communiqué — contactez l'établissement</p>
-                    {% endif %}
-                </div>
-
-                {% if etablissement.telephone %}
-                    <div>
-                        <p class="text-xs text-brun-400 uppercase font-semibold tracking-wide mb-0.5">Téléphone</p>
-                        <a href="tel:{{ etablissement.telephone }}" class="text-brun-700 font-medium hover:text-brun-900 transition-colors">{{ etablissement.telephone }}</a>
-                    </div>
-                {% endif %}
-
-                <!-- GPS button -->
-                {% if etablissement.latitude and etablissement.longitude %}
-                    <a href="https://www.openstreetmap.org/?mlat={{ etablissement.latitude }}&mlon={{ etablissement.longitude }}&zoom=17"
-                       target="_blank" rel="noopener"
-                       class="flex items-center justify-center gap-2 bg-brun-100 hover:bg-brun-200 border border-brun-200 text-brun-700 font-semibold text-sm px-4 py-2.5 rounded-full transition-colors w-full">
-                        📍 Voir sur la carte
-                    </a>
-                {% endif %}
-
-                <!-- Contacts réservation : hôtels et restaurants uniquement -->
-                {% with cat=etablissement.categorie.nom|lower %}
-                {% if 'hotel' in cat or 'hôtel' in cat or 'restaurant' in cat %}
-                    {% if etablissement.email_contact or etablissement.whatsapp_contact %}
-                        <div class="h-px bg-brun-200"></div>
-                        <p class="text-xs text-brun-400 uppercase font-semibold tracking-wide">Réserver directement</p>
-                        <div class="flex flex-col gap-2">
-                            {% if etablissement.email_contact %}
-                                <a href="mailto:{{ etablissement.email_contact }}"
-                                   class="flex items-center gap-2 bg-brun-50 hover:bg-brun-100 border border-brun-200 text-brun-700 font-semibold text-sm px-4 py-2.5 rounded-full transition-colors">
-                                    <span>📧</span>
-                                    <span class="truncate">{{ etablissement.email_contact }}</span>
-                                </a>
-                            {% endif %}
-                            {% if etablissement.whatsapp_contact %}
-                                <a href="https://wa.me/{{ etablissement.whatsapp_contact|cut:'+' }}"
-                                   target="_blank" rel="noopener"
-                                   class="flex items-center gap-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 font-semibold text-sm px-4 py-2.5 rounded-full transition-colors">
-                                    <span>💬</span>
-                                    <span>WhatsApp</span>
-                                    <span class="text-emerald-600 font-normal text-xs">{{ etablissement.whatsapp_contact }}</span>
-                                </a>
-                            {% endif %}
-                        </div>
-                    {% endif %}
-                {% endif %}
-                {% endwith %}
-
-                <div class="h-px bg-brun-200"></div>
-
-                {% if user.is_authenticated %}
-                    {% if user.est_proprietaire or user.est_mediateur %}
-                        <p class="text-brun-400 text-sm text-center">Les comptes propriétaire et médiateur ne peuvent pas réserver.</p>
-                    {% else %}
-                        <a href="{% url 'reservations:reserver' slug=etablissement.slug %}"
-                           class="block text-center bg-brun-700 hover:bg-brun-800 text-white font-semibold px-4 py-2.5 rounded-full transition-colors shadow-fleur w-full">
-                            Réserver une place
-                        </a>
-                    {% endif %}
+        {% if etablissement.telephone or etablissement.site_web or etablissement.facebook or etablissement.tiktok %}
+        <div class="flex flex-wrap gap-2">
+            {% if etablissement.telephone %}<a href="tel:{{ etablissement.telephone }}" class="svc no-underline"><i class="ph ph-phone"></i>{{ etablissement.telephone }}</a>{% endif %}
+            {% if etablissement.site_web %}
+                {% if etablissement.site_web|is_maps_url %}
+                    <a href="{{ etablissement.site_web }}" target="_blank" rel="noopener" class="svc no-underline"><i class="ph-fill ph-map-trifold"></i>Voir sur Google Maps</a>
                 {% else %}
-                    <a href="{% url 'accounts:connexion' %}?next={% url 'reservations:reserver' slug=etablissement.slug %}"
-                       class="block text-center bg-brun-700 hover:bg-brun-800 text-white font-semibold px-4 py-2.5 rounded-full transition-colors shadow-fleur w-full">
-                        Se connecter pour réserver
-                    </a>
+                    <a href="{{ etablissement.site_web }}" target="_blank" rel="noopener" class="svc no-underline"><i class="ph ph-globe"></i>Site web</a>
                 {% endif %}
-            </div>
+            {% endif %}
+            {% if etablissement.facebook %}<a href="{{ etablissement.facebook }}" target="_blank" rel="noopener" class="svc no-underline"><i class="ph-fill ph-facebook-logo" style="color:#4a7fff"></i>Facebook</a>{% endif %}
+            {% if etablissement.tiktok %}<a href="{{ etablissement.tiktok }}" target="_blank" rel="noopener" class="svc no-underline"><i class="ph-fill ph-tiktok-logo"></i>TikTok</a>{% endif %}
         </div>
+        {% endif %}
+
+        {% if etablissement.latitude and etablissement.longitude %}
+        <a href="https://www.openstreetmap.org/?mlat={{ etablissement.latitude }}&mlon={{ etablissement.longitude }}&zoom=17" target="_blank" rel="noopener" class="flex items-center justify-center gap-2 no-underline" style="height:48px;border-radius:14px;background:var(--color-surface);border:1px solid var(--color-divider);color:var(--color-text);font-size:13.5px">
+            <i class="ph-fill ph-map-trifold" style="color:var(--color-accent)"></i>Voir sur la carte
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Barre d'action -->
+    <div class="flex items-center gap-3 px-4 sm:px-6 py-4" style="background:#1b1d2b;border-top:1px solid var(--color-divider)">
+        {% if etablissement.prix_minimum %}
+            <div class="flex-none" style="font-size:19px;font-weight:700;color:var(--color-text)">{{ etablissement.prix_minimum }} $<span style="font-size:12px;font-weight:400;color:var(--color-neutral-500)"> /dès</span></div>
+        {% endif %}
+        {% if user.is_authenticated %}
+            {% if user.est_proprietaire or user.est_mediateur %}
+                <p class="flex-1 text-center" style="font-size:13px;color:var(--color-neutral-500)">Les comptes propriétaire et médiateur ne peuvent pas réserver.</p>
+            {% else %}
+                <a href="{% url 'reservations:reserver' slug=etablissement.slug %}" class="flex-1 flex items-center justify-center no-underline" style="height:48px;font-size:15px;background:var(--color-accent);color:#161826;border-radius:14px;font-weight:600">Réserver</a>
+            {% endif %}
+        {% else %}
+            <a href="{% url 'accounts:connexion' %}?next={% url 'reservations:reserver' slug=etablissement.slug %}" class="flex-1 flex items-center justify-center no-underline" style="height:48px;font-size:15px;background:var(--color-accent);color:#161826;border-radius:14px;font-weight:600">Se connecter pour réserver</a>
+        {% endif %}
+        {% if etablissement.whatsapp_contact %}
+            <a href="https://wa.me/{{ etablissement.whatsapp_contact|cut:'+' }}" target="_blank" rel="noopener" class="flex-none flex items-center justify-center no-underline" style="width:48px;height:48px;border-radius:14px;background:color-mix(in srgb,#25d366 20%,transparent);border:1px solid #25d366;color:#25d366;font-size:23px"><i class="ph-fill ph-whatsapp-logo"></i></a>
+        {% endif %}
+        {% if etablissement.email_contact %}
+            <a href="mailto:{{ etablissement.email_contact }}" class="flex-none flex items-center justify-center no-underline" style="width:48px;height:48px;border-radius:14px;background:var(--color-surface);border:1px solid var(--color-divider);color:var(--color-text);font-size:20px"><i class="ph ph-envelope-simple"></i></a>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

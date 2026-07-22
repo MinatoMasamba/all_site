@@ -1,0 +1,5 @@
+/* Source for static/css/tailwind.css — rebuild with:
+   npx tailwindcss -i static/css/input.css -o static/css/tailwind.css --config tailwind.config.js --minify */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

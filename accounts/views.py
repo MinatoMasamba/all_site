@@ -108,3 +108,8 @@ def devenir_mediateur(request):
             messages.error(request, "Vous devez accepter les conditions pour continuer.")
 
     return render(request, "accounts/devenir_mediateur.html")
+
+
+@login_required
+def compte(request):
+    return render(request, "accounts/compte.html")

@@ -24,7 +24,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {% for etablissement in etablissements %}
                 <a href="{% url 'listings:modifier_etablissement' slug=etablissement.slug %}"
-                   class="group bg-white rounded-2xl overflow-hidden shadow-fleur border border-brun-100 flex flex-col hover:-translate-y-1 hover:shadow-fleur-lg transition-all duration-200 no-underline">
+                   class="group bg-brun-50 rounded-2xl overflow-hidden shadow-fleur border border-brun-100 flex flex-col hover:-translate-y-1 hover:shadow-fleur-lg transition-all duration-200 no-underline">
                     <div class="relative h-44 bg-brun-100"
                          {% with image=etablissement.image_principale %}
                          {% if image %}style="background-image:url('{{ image.src }}'); background-size:cover; background-position:center;"{% endif %}

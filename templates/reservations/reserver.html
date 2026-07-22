@@ -1,11 +1,12 @@
 {% extends "base.html" %}
+{% load listings_extras %}
 
 {% block titre %}Réserver — {{ etablissement.nom }}{% endblock %}
 
 {% block contenu %}
 <div class="min-h-[70vh] flex items-center justify-center px-4 py-12">
     <div class="w-full max-w-lg">
-        <div class="bg-white rounded-2xl shadow-fleur border border-brun-100 p-8">
+        <div class="bg-brun-50 rounded-2xl shadow-fleur border border-brun-100 p-8">
             <div class="text-center mb-6">
                 <p class="text-4xl mb-3">🌷</p>
                 <h1 class="text-2xl font-extrabold text-brun-800">Réserver</h1>
@@ -26,23 +27,23 @@
                             {{ field.label }}
                             {% if field.field.required %}<span class="text-brun-400">*</span>{% endif %}
                         </label>
-                        {% if field.field.widget.__class__.__name__ == 'Select' %}
+                        {% if field|widget_type == 'Select' %}
                             <select name="{{ field.html_name }}" id="{{ field.id_for_label }}"
-                                    class="w-full px-4 py-2.5 rounded-xl border border-brun-200 bg-brun-50 text-brun-900 text-sm form-field focus:border-brun-500 focus:bg-white transition-colors">
+                                    class="w-full px-4 py-2.5 rounded-xl border border-brun-200 bg-brun-50 text-brun-900 text-sm form-field focus:border-brun-500 focus:bg-brun-100 transition-colors">
                                 {% for val, label in field.field.choices %}
                                     <option value="{{ val }}" {% if field.value == val %}selected{% endif %}>{{ label }}</option>
                                 {% endfor %}
                             </select>
-                        {% elif field.field.widget.__class__.__name__ == 'Textarea' %}
+                        {% elif field|widget_type == 'Textarea' %}
                             <textarea name="{{ field.html_name }}" id="{{ field.id_for_label }}" rows="3"
-                                      class="w-full px-4 py-2.5 rounded-xl border border-brun-200 bg-brun-50 text-brun-900 text-sm form-field focus:border-brun-500 focus:bg-white transition-colors resize-none"
+                                      class="w-full px-4 py-2.5 rounded-xl border border-brun-200 bg-brun-50 text-brun-900 text-sm form-field focus:border-brun-500 focus:bg-brun-100 transition-colors resize-none"
                                       {% if field.field.required %}required{% endif %}>{% if field.value %}{{ field.value }}{% endif %}</textarea>
                         {% else %}
                             <input type="{{ field.field.widget.input_type }}"
                                    name="{{ field.html_name }}"
                                    id="{{ field.id_for_label }}"
                                    {% if field.value %}value="{{ field.value }}"{% endif %}
-                                   class="w-full px-4 py-2.5 rounded-xl border border-brun-200 bg-brun-50 text-brun-900 text-sm form-field focus:border-brun-500 focus:bg-white transition-colors"
+                                   class="w-full px-4 py-2.5 rounded-xl border border-brun-200 bg-brun-50 text-brun-900 text-sm form-field focus:border-brun-500 focus:bg-brun-100 transition-colors"
                                    {% if field.field.required %}required{% endif %}>
                         {% endif %}
                         {% if field.errors %}

@@ -17,3 +17,9 @@ def is_maps_url(value):
     if not value:
         return False
     return "google.com/maps" in value or "openstreetmap.org" in value
+
+
+@register.filter
+def widget_type(field):
+    """Returns a form field's widget class name (dunder lookups are blocked in templates)."""
+    return field.field.widget.__class__.__name__

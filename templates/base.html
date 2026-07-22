@@ -1,247 +1,133 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="fr" class="scroll-smooth">
+<html lang="fr">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block titre %}Découvrir Kinshasa{% endblock %}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brun: {
-                            50:  '#fdf8f4',
-                            100: '#f7efe6',
-                            200: '#ecd9c9',
-                            300: '#d9b99a',
-                            400: '#c2916a',
-                            500: '#a9744f',
-                            600: '#8b5e3c',
-                            700: '#6b4226',
-                            800: '#4a2c19',
-                            900: '#2f1c0e',
-                        },
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'Segoe UI', 'Helvetica Neue', 'Arial', 'sans-serif'],
-                    },
-                    boxShadow: {
-                        'fleur': '0 4px 18px rgba(107, 66, 38, 0.12)',
-                        'fleur-lg': '0 10px 28px rgba(107, 66, 38, 0.18)',
-                    },
-                }
-            }
-        }
-    </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/nocturne.css' %}">
+    <link rel="stylesheet" href="{% static 'vendor/phosphor/regular/style.css' %}">
+    <link rel="stylesheet" href="{% static 'vendor/phosphor/fill/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/tailwind.css' %}">
     <style>
-        body { background-color: #fffdfa; }
-        .bg-fleur {
-            background-image:
-                radial-gradient(circle at top left, rgba(169,116,79,0.08) 0, transparent 40%),
-                radial-gradient(circle at bottom right, rgba(107,66,38,0.07) 0, transparent 45%);
-        }
-        .nav-glass {
-            background: linear-gradient(120deg, #6b4226 0%, #a9744f 100%);
-        }
-        input:focus, select:focus, textarea:focus {
-            outline: 2px solid #a9744f;
-            outline-offset: 0;
-        }
-        .form-field { transition: border-color 0.15s; }
-        .form-field:focus { border-color: #a9744f; }
+        body { background: var(--color-bg); min-height: 100vh; display: flex; flex-direction: column; }
+        .tabbar { display: flex; justify-content: space-around; align-items: center; padding: 11px 6px 9px; background: #1b1d2b; border-top: 1px solid rgba(233,233,237,.07); }
+        .tab { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; color: #75798c; text-decoration: none; flex: 1; }
+        .tab i { font-size: 23px; }
+        .tab-on { color: var(--color-accent); }
+        .tabbar-fixed { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; }
+        @media (min-width: 768px) { .tabbar-fixed { display: none; } }
+        @media (max-width: 767px) { body { padding-bottom: 70px; } }
     </style>
+    {% block extra_css %}{% endblock %}
 </head>
-<body class="bg-fleur text-brun-900 font-sans min-h-screen flex flex-col">
+<body class="text-[color:var(--color-text)] font-sans">
 
-    <!-- ===== NAVBAR ===== -->
-    <header class="nav-glass sticky top-0 z-50 shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
-            <!-- Logo -->
-            <a href="{% url 'listings:galerie' %}" class="flex items-center gap-2 text-white font-bold text-xl no-underline hover:opacity-90 transition-opacity">
-                <span class="text-2xl">🌸</span>
-                <span>Découvrir Kinshasa</span>
-            </a>
-            <!-- Bouton hamburger (mobile uniquement) -->
-            <button id="nav-toggle" type="button" aria-controls="nav-menu" aria-expanded="false" aria-label="Ouvrir le menu"
-                    class="md:hidden inline-flex items-center justify-center p-2 rounded-lg text-white hover:bg-white/10 transition-colors">
-                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-            </button>
-            <!-- Nav links -->
-            <nav id="nav-menu" class="hidden flex md:items-center md:gap-1 w-full md:w-auto flex-col md:flex-row items-stretch gap-1 absolute md:relative top-full left-0 md:top-auto md:left-auto bg-brun-700 md:bg-transparent px-4 sm:px-6 md:px-0 py-3 md:py-0 shadow-lg md:shadow-none">
-                <a href="{% url 'listings:galerie' %}" class="text-brun-100 hover:text-white font-medium px-3 py-1.5 rounded-full hover:bg-white/10 transition-all text-sm">
-                    Galerie
-                </a>
-                <a href="{% url 'accounts:inscription_proprietaire' %}" class="text-brun-100 hover:text-white font-medium px-3 py-1.5 rounded-full hover:bg-white/10 transition-all text-sm">
-                    Enregistrer mon établissement
-                </a>
-                {% if user.is_authenticated %}
-                    {% if not user.est_mediateur and not user.est_gestionnaire %}
-                        <a href="{% url 'accounts:devenir_mediateur' %}" class="text-brun-100 hover:text-white font-medium px-3 py-1.5 rounded-full hover:bg-white/10 transition-all text-sm">
-                            Devenir médiateur
-                        </a>
-                    {% endif %}
-                    {% if user.est_mediateur %}
-                        <a href="{% url 'accounts:devenir_mediateur' %}" class="text-brun-100 hover:text-white font-medium px-3 py-1.5 rounded-full hover:bg-white/10 transition-all text-sm">
-                            Mon espace médiateur
-                        </a>
-                    {% endif %}
-                {% else %}
-                    <a href="{% url 'accounts:inscription_mediateur' %}" class="text-brun-100 hover:text-white font-medium px-3 py-1.5 rounded-full hover:bg-white/10 transition-all text-sm">
-                        Devenir médiateur
-                    </a>
+<!-- ===== HEADER ===== -->
+<header class="sticky top-0 z-50" style="background:var(--color-surface);border-bottom:1px solid var(--color-divider)">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+        <a href="{% url 'listings:galerie' %}" class="flex items-center gap-2 font-bold text-lg no-underline" style="color:var(--color-text)">
+            <span class="flex items-center justify-center rounded-xl" style="width:34px;height:34px;background:var(--color-accent);color:#161826;font-size:18px"><i class="ph-fill ph-compass"></i></span>
+            <span class="hidden sm:inline">Découvrir Kinshasa</span>
+        </a>
+
+        <nav class="hidden md:flex items-center gap-1">
+            <a href="{% url 'listings:galerie' %}" class="nav-link">Explorer</a>
+            <a href="{% url 'listings:recherche' %}" class="nav-link">Recherche</a>
+            <a href="{% url 'accounts:inscription_proprietaire' %}" class="nav-link">Enregistrer mon établissement</a>
+            {% if user.is_authenticated %}
+                {% if not user.est_mediateur and not user.est_gestionnaire %}
+                    <a href="{% url 'accounts:devenir_mediateur' %}" class="nav-link">Devenir médiateur</a>
                 {% endif %}
+            {% else %}
+                <a href="{% url 'accounts:inscription_mediateur' %}" class="nav-link">Devenir médiateur</a>
+            {% endif %}
+        </nav>
 
-                {% if user.is_authenticated %}
-                    {% if user.est_proprietaire or user.est_mediateur or user.est_gestionnaire %}
-                        <a href="{% url 'listings:mes_etablissements' %}" class="text-brun-100 hover:text-white font-medium px-3 py-1.5 rounded-full hover:bg-white/10 transition-all text-sm">
-                            Mes établissements
-                        </a>
-                    {% endif %}
-                    {% if user.est_proprietaire or user.est_gestionnaire %}
-                        <a href="{% url 'reservations:reservations_etablissement' %}" class="text-brun-100 hover:text-white font-medium px-3 py-1.5 rounded-full hover:bg-white/10 transition-all text-sm">
-                            Réservations reçues
-                        </a>
-                        <a href="{% url 'notifications:annonces' %}" class="text-brun-100 hover:text-white font-medium px-3 py-1.5 rounded-full hover:bg-white/10 transition-all text-sm">
-                            Annonces
-                        </a>
-                    {% endif %}
-                    {% if not user.est_proprietaire and not user.est_mediateur %}
-                        <a href="{% url 'reservations:mes_reservations' %}" class="text-brun-100 hover:text-white font-medium px-3 py-1.5 rounded-full hover:bg-white/10 transition-all text-sm">
-                            Mes réservations
-                        </a>
-                    {% endif %}
-                    <form method="post" action="{% url 'accounts:deconnexion' %}" class="inline">
-                        {% csrf_token %}
-                        <button type="submit" class="text-brun-100 hover:text-white font-medium px-3 py-1.5 rounded-full hover:bg-white/10 transition-all text-sm cursor-pointer bg-transparent border-none">
-                            Déconnexion ({{ user.username }})
-                        </button>
-                    </form>
-                {% else %}
-                    <a href="{% url 'accounts:connexion' %}" class="text-brun-100 hover:text-white font-medium px-3 py-1.5 rounded-full hover:bg-white/10 transition-all text-sm">
-                        Connexion
-                    </a>
-                    <a href="{% url 'accounts:inscription' %}" class="bg-white text-brun-700 font-semibold px-4 py-1.5 rounded-full hover:bg-brun-50 transition-colors text-sm shadow-sm">
-                        S'inscrire
-                    </a>
-                {% endif %}
-            </nav>
+        <div class="flex items-center gap-2">
+            {% if user.is_authenticated %}
+                <a href="{% url 'accounts:compte' %}" class="flex items-center gap-2 no-underline px-3 py-1.5 rounded-full text-sm font-medium" style="background:var(--color-bg);color:var(--color-text);border:1px solid var(--color-divider)">
+                    <i class="ph ph-user-circle" style="font-size:18px"></i>
+                    <span class="hidden sm:inline">{{ user.username }}</span>
+                </a>
+            {% else %}
+                <a href="{% url 'accounts:connexion' %}" class="nav-link">Connexion</a>
+                <a href="{% url 'accounts:inscription' %}" class="btn btn-primary">S'inscrire</a>
+            {% endif %}
         </div>
-    </header>
+    </div>
+</header>
 
-    <!-- ===== FLASH MESSAGES ===== -->
-    {% if messages %}
-        <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 pt-4 space-y-2">
-            {% for message in messages %}
-                <div class="{% if message.tags == 'success' %}bg-emerald-50 border border-emerald-200 text-emerald-800{% else %}bg-red-50 border border-red-200 text-red-800{% endif %} rounded-xl px-4 py-3 font-medium text-sm flex items-center gap-2">
-                    {% if message.tags == 'success' %}✅{% else %}⚠️{% endif %}
-                    {{ message }}
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
-
-    <!-- ===== MAIN CONTENT ===== -->
-    <main class="flex-1">
-        {% block contenu %}{% endblock %}
-    </main>
-
-    <!-- ===== NEWSLETTER ===== -->
-    {% if est_abonne %}
-        <section class="bg-brun-100 py-8 px-4">
-            <div class="max-w-2xl mx-auto text-center">
-                <p class="text-3xl mb-2">🌸</p>
-                <p class="text-brun-700 font-semibold text-base">Vous êtes abonné(e) aux offres et nouveautés de Découvrir Kinshasa.</p>
-                <p class="text-brun-400 text-sm mt-1">Vous recevrez les prochaines annonces par email et WhatsApp.</p>
+<!-- ===== FLASH MESSAGES ===== -->
+{% if messages %}
+    <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 pt-4 space-y-2">
+        {% for message in messages %}
+            <div class="rounded-xl px-4 py-3 font-medium text-sm flex items-center gap-2"
+                 style="{% if message.tags == 'success' %}background:var(--color-accent-2-900);color:var(--color-accent-2-200);border:1px solid var(--color-accent-2-700){% else %}background:#38181e;color:#ffb4b4;border:1px solid #5c2530{% endif %}">
+                {% if message.tags == 'success' %}<i class="ph-fill ph-check-circle"></i>{% else %}<i class="ph-fill ph-warning-circle"></i>{% endif %}
+                {{ message }}
             </div>
-        </section>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<!-- ===== MAIN CONTENT ===== -->
+<main class="flex-1">
+    {% block contenu %}{% endblock %}
+</main>
+
+<!-- ===== NEWSLETTER ===== -->
+{% if est_abonne %}
+    <section class="py-8 px-4" style="background:var(--color-surface)">
+        <div class="max-w-2xl mx-auto text-center">
+            <p class="font-semibold text-base" style="color:var(--color-text)"><i class="ph-fill ph-bell-ringing" style="color:var(--color-accent)"></i>&nbsp; Vous êtes abonné(e) aux offres et nouveautés de Découvrir Kinshasa.</p>
+            <p class="text-sm mt-1" style="color:var(--color-neutral-500)">Vous recevrez les prochaines annonces par email et WhatsApp.</p>
+        </div>
+    </section>
+{% else %}
+    <section class="py-12 px-4" style="background:var(--color-surface)">
+        <div class="max-w-2xl mx-auto text-center">
+            <h2 class="text-2xl font-bold mb-2" style="color:var(--color-text)">Ne manquez aucune offre ni nouveauté</h2>
+            <p class="mb-6 text-sm" style="color:var(--color-neutral-500)">Recevez par email et WhatsApp les nouveaux établissements et les promotions des hôtels, restaurants, bars et sites touristiques de Kinshasa.</p>
+            <form method="post" action="{% url 'notifications:abonnement' %}" class="flex flex-col sm:flex-row gap-3 justify-center">
+                {% csrf_token %}
+                <input type="email" name="email" placeholder="Votre adresse email" required class="input flex-1 min-w-0" style="border-radius:999px">
+                <input type="text" name="numero_whatsapp" placeholder="WhatsApp (ex: +243800000000)" class="input flex-1 min-w-0" style="border-radius:999px">
+                <button type="submit" class="btn btn-primary" style="background:var(--color-accent);color:#161826;border-radius:999px;white-space:nowrap">S'abonner aux offres</button>
+            </form>
+        </div>
+    </section>
+{% endif %}
+
+<!-- ===== FOOTER ===== -->
+<footer class="py-8 px-4" style="background:#12131c;color:var(--color-neutral-500)">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
+        <p class="flex items-center gap-2">
+            <i class="ph-fill ph-compass" style="color:var(--color-accent);font-size:18px"></i>
+            <span><strong style="color:var(--color-text)">Découvrir Kinshasa</strong> — hôtels, restaurants, bars et sites touristiques</span>
+        </p>
+        <div class="flex gap-5">
+            <a href="{% url 'accounts:inscription_proprietaire' %}" style="color:var(--color-neutral-500)">Propriétaires</a>
+            <a href="{% url 'accounts:inscription_mediateur' %}" style="color:var(--color-neutral-500)">Médiateurs</a>
+        </div>
+    </div>
+</footer>
+
+<!-- ===== BOTTOM TABBAR (mobile) ===== -->
+<nav class="tabbar tabbar-fixed">
+    <a class="tab {% if request.resolver_match.url_name == 'galerie' %}tab-on{% endif %}" href="{% url 'listings:galerie' %}"><i class="ph-fill ph-compass"></i>Explorer</a>
+    <a class="tab {% if request.resolver_match.url_name == 'recherche' or request.resolver_match.url_name == 'resultats' %}tab-on{% endif %}" href="{% url 'listings:recherche' %}"><i class="ph ph-magnifying-glass"></i>Recherche</a>
+    <a class="tab {% if request.resolver_match.url_name == 'mes_reservations' %}tab-on{% endif %}" href="{% url 'reservations:mes_reservations' %}"><i class="ph ph-calendar-check"></i>Réservations</a>
+    {% if user.is_authenticated %}
+        <a class="tab {% if request.resolver_match.url_name == 'compte' %}tab-on{% endif %}" href="{% url 'accounts:compte' %}"><i class="ph ph-user"></i>Compte</a>
     {% else %}
-        <section class="bg-brun-100 py-12 px-4">
-            <div class="max-w-2xl mx-auto text-center">
-                <p class="text-3xl mb-2">🌼</p>
-                <h2 class="text-2xl font-bold text-brun-800 mb-2">Ne manquez aucune offre ni nouveauté</h2>
-                <p class="text-brun-600 mb-6 text-sm">Recevez par email et WhatsApp les nouveaux établissements et les promotions des hôtels, restaurants, bars et sites touristiques de Kinshasa.</p>
-                <form method="post" action="{% url 'notifications:abonnement' %}" class="flex flex-col sm:flex-row gap-3 justify-center">
-                    {% csrf_token %}
-                    <input type="email" name="email" placeholder="Votre adresse email" required
-                           class="flex-1 min-w-0 px-4 py-2.5 rounded-full border border-brun-300 bg-white text-brun-900 placeholder-brun-400 text-sm form-field focus:border-brun-500">
-                    <input type="text" name="numero_whatsapp" placeholder="WhatsApp (ex: +243800000000)"
-                           class="flex-1 min-w-0 px-4 py-2.5 rounded-full border border-brun-300 bg-white text-brun-900 placeholder-brun-400 text-sm form-field focus:border-brun-500">
-                    <button type="submit" class="bg-brun-700 hover:bg-brun-800 text-white font-semibold px-6 py-2.5 rounded-full transition-colors text-sm whitespace-nowrap shadow-fleur">
-                        S'abonner aux offres
-                    </button>
-                </form>
-            </div>
-        </section>
+        <a class="tab {% if request.resolver_match.url_name == 'connexion' %}tab-on{% endif %}" href="{% url 'accounts:connexion' %}"><i class="ph ph-user"></i>Compte</a>
     {% endif %}
+</nav>
 
-    <!-- ===== FOOTER ===== -->
-    <footer class="bg-brun-800 text-brun-200 py-8 px-4">
-        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
-            <p class="flex items-center gap-2">
-                <span class="text-lg">🌺</span>
-                <span><strong class="text-white">Découvrir Kinshasa</strong> — hôtels, restaurants, bars et sites touristiques</span>
-            </p>
-            <div class="flex gap-5">
-                <a href="{% url 'accounts:inscription_proprietaire' %}" class="text-brun-200 hover:text-white transition-colors">Propriétaires</a>
-                <a href="{% url 'accounts:inscription_mediateur' %}" class="text-brun-200 hover:text-white transition-colors">Médiateurs</a>
-            </div>
-        </div>
-    </footer>
-
-    <script>
-        (function () {
-            var toggle = document.getElementById('nav-toggle');
-            var nav = document.getElementById('nav-menu');
-            if (!toggle || !nav) return;
-
-            function closeNav() {
-                nav.classList.add('hidden');
-                toggle.setAttribute('aria-expanded', 'false');
-            }
-            function openNav() {
-                nav.classList.remove('hidden');
-                toggle.setAttribute('aria-expanded', 'true');
-            }
-
-            toggle.addEventListener('click', function (e) {
-                e.stopPropagation();
-                if (nav.classList.contains('hidden')) {
-                    openNav();
-                } else {
-                    closeNav();
-                }
-            });
-
-            nav.querySelectorAll('a, button').forEach(function (el) {
-                el.addEventListener('click', closeNav);
-            });
-
-            document.addEventListener('click', function (e) {
-                if (!nav.classList.contains('hidden') && !nav.contains(e.target) && !toggle.contains(e.target)) {
-                    closeNav();
-                }
-            });
-
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape') closeNav();
-            });
-
-            window.addEventListener('resize', function () {
-                if (window.innerWidth >= 768) {
-                    nav.classList.remove('hidden');
-                } else {
-                    closeNav();
-                }
-            });
-        })();
-    </script>
-
+<style>
+    .nav-link { color: var(--color-neutral-400); text-decoration: none; font-size: 14px; font-weight: 500; padding: 6px 12px; border-radius: 999px; }
+    .nav-link:hover { color: var(--color-text); background: color-mix(in srgb, var(--color-text) 7%, transparent); }
+</style>
 </body>
 </html>

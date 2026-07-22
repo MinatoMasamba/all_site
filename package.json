@@ -1,0 +1,10 @@
+{
+  "name": "decouvrir-kinshasa-frontend",
+  "private": true,
+  "scripts": {
+    "build:css": "tailwindcss -i static/css/input.css -o static/css/tailwind.css --config tailwind.config.js --minify"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3"
+  }
+}

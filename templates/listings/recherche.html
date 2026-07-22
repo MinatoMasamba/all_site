@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block titre %}Recherche — Découvrir Kinshasa{% endblock %}
+
+{% block extra_css %}
+<style>
+    .fchip { display:inline-flex; align-items:center; gap:6px; padding:9px 14px; border-radius:11px; font-size:13px; font-weight:500; background:var(--color-surface); color:var(--color-neutral-400); border:1px solid var(--color-divider); cursor:pointer; }
+    .fchip input { position:absolute; opacity:0; width:0; height:0; pointer-events:none; }
+    .fchip:has(input:checked) { background:color-mix(in srgb,var(--color-accent) 18%,transparent); color:var(--color-accent-300); border-color:var(--color-accent); }
+    .fchip:has(input:focus-visible) { outline:2px solid var(--color-accent); outline-offset:2px; }
+</style>
+{% endblock %}
+
+{% block contenu %}
+<div class="max-w-2xl mx-auto">
+    <form method="get" action="{% url 'listings:resultats' %}">
+        <div class="flex items-center justify-between px-4 sm:px-6 pt-6 pb-3">
+            <a href="{% url 'listings:galerie' %}" class="flex items-center justify-center no-underline" style="width:40px;height:40px;border-radius:12px;background:var(--color-surface);border:1px solid var(--color-divider);color:var(--color-text);font-size:19px"><i class="ph ph-arrow-left"></i></a>
+            <div style="font-size:17px;font-weight:600;color:var(--color-text)">Filtres</div>
+            <a href="{% url 'listings:recherche' %}" style="font-size:13px;color:var(--color-accent)">Effacer</a>
+        </div>
+
+        <div class="px-4 sm:px-6">
+            <div class="flex items-center gap-2.5" style="height:50px;padding:0 15px;background:var(--color-surface);border-radius:14px;border:1.5px solid var(--color-accent)">
+                <i class="ph ph-magnifying-glass" style="font-size:19px;color:var(--color-accent)"></i>
+                <input type="search" name="q" value="{{ terme }}" placeholder="Nom, quartier, cuisine…" style="flex:1;background:none;border:none;outline:none;color:var(--color-text);font-size:15px;font-family:inherit">
+            </div>
+        </div>
+
+        <div class="flex flex-col px-4 sm:px-6 pt-6 pb-4" style="gap:22px">
+            <div>
+                <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-500);margin-bottom:11px">Catégorie</div>
+                <div class="flex flex-wrap gap-2.5">
+                    <label class="fchip"><input type="radio" name="categorie" value="" {% if not categorie_active %}checked{% endif %}>Toutes</label>
+                    {% for cat in categories %}
+                        <label class="fchip"><input type="radio" name="categorie" value="{{ cat.slug }}" {% if categorie_active == cat.slug %}checked{% endif %}>{{ cat.nom }}</label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div>
+                <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-500);margin-bottom:11px">Commune</div>
+                <div class="flex flex-wrap gap-2.5">
+                    <label class="fchip"><input type="radio" name="commune" value="" {% if not commune_active %}checked{% endif %}>Toutes</label>
+                    {% for com in communes %}
+                        <label class="fchip"><input type="radio" name="commune" value="{{ com.id }}" {% if commune_active == com.id|stringformat:"s" %}checked{% endif %}>{{ com.nom }}</label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div>
+                <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-500);margin-bottom:11px">Budget par personne</div>
+                <div class="flex flex-wrap gap-2.5">
+                    <label class="fchip"><input type="radio" name="prix" value="" {% if not prix_actif %}checked{% endif %}>Tous les prix</label>
+                    {% for valeur, libelle in tranches_prix %}
+                        <label class="fchip"><input type="radio" name="prix" value="{{ valeur }}" {% if prix_actif == valeur %}checked{% endif %}>{{ libelle }}</label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div>
+                <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-500);margin-bottom:11px">Note minimale</div>
+                <div class="flex flex-wrap gap-2.5">
+                    <label class="fchip"><input type="radio" name="note" value="" {% if not note_active %}checked{% endif %}>Toutes</label>
+                    <label class="fchip"><input type="radio" name="note" value="3.0" {% if note_active == "3.0" %}checked{% endif %}><i class="ph-fill ph-star" style="color:#f0c96b"></i>3.0 +</label>
+                    <label class="fchip"><input type="radio" name="note" value="4.0" {% if note_active == "4.0" %}checked{% endif %}><i class="ph-fill ph-star" style="color:#f0c96b"></i>4.0 +</label>
+                    <label class="fchip"><input type="radio" name="note" value="4.5" {% if note_active == "4.5" %}checked{% endif %}><i class="ph-fill ph-star" style="color:#f0c96b"></i>4.5 +</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex gap-3 px-4 sm:px-6 py-4" style="background:#1b1d2b;border-top:1px solid var(--color-divider)">
+            <button type="reset" class="flex-none" style="height:50px;padding:0 20px;border-radius:14px;border:1px solid var(--color-divider);background:none;color:var(--color-neutral-300);font-size:14px;font-family:inherit;cursor:pointer">Réinitialiser</button>
+            <button type="submit" class="flex-1" style="height:50px;display:flex;align-items:center;justify-content:center;gap:8px;border-radius:14px;background:var(--color-accent);color:#161826;font-size:15px;font-weight:600;border:none;font-family:inherit;cursor:pointer">Voir {{ nb_resultats }} résultat{{ nb_resultats|pluralize }}</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

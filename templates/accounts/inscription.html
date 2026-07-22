@@ -2,57 +2,47 @@
 
 {% block titre %}Inscription — Découvrir Kinshasa{% endblock %}
 
+{% block extra_css %}
+<style>
+    .fld { display:flex; align-items:center; gap:11px; height:52px; padding:0 15px; background:var(--color-surface); border-radius:14px; border:1px solid var(--color-divider); }
+    .fld input { flex:1; background:none; border:none; outline:none; color:var(--color-text); font-size:15px; font-family:inherit; }
+    .fld input::placeholder { color:var(--color-neutral-500); }
+</style>
+{% endblock %}
+
 {% block contenu %}
-<div class="min-h-[70vh] flex items-center justify-center px-4 py-12">
-    <div class="w-full max-w-md">
-        <div class="bg-white rounded-2xl shadow-fleur border border-brun-100 p-8">
-            <div class="text-center mb-6">
-                <p class="text-4xl mb-3">🌸</p>
-                <h1 class="text-2xl font-extrabold text-brun-800">Créer un compte visiteur</h1>
-                <p class="text-brun-500 text-sm mt-1">{{ message_bienvenue }}</p>
-            </div>
-
-            <form method="post" class="space-y-4">
-                {% csrf_token %}
-                {% for field in form %}
-                    <div>
-                        <label for="{{ field.id_for_label }}" class="block text-sm font-semibold text-brun-700 mb-1">
-                            {{ field.label }}
-                            {% if field.field.required %}<span class="text-brun-400">*</span>{% endif %}
-                        </label>
-                        {% if field.field.widget.input_type == 'checkbox' %}
-                            <div class="flex items-center gap-2">
-                                <input type="checkbox" name="{{ field.html_name }}" id="{{ field.id_for_label }}"
-                                       {% if field.value %}checked{% endif %}
-                                       class="w-4 h-4 accent-brun-700">
-                                <span class="text-sm text-brun-600">{{ field.help_text }}</span>
-                            </div>
-                        {% else %}
-                            <input type="{{ field.field.widget.input_type }}"
-                                   name="{{ field.html_name }}"
-                                   id="{{ field.id_for_label }}"
-                                   {% if field.value %}value="{{ field.value }}"{% endif %}
-                                   class="w-full px-4 py-2.5 rounded-xl border border-brun-200 bg-brun-50 text-brun-900 placeholder-brun-300 text-sm form-field focus:border-brun-500 focus:bg-white transition-colors"
-                                   {% if field.field.required %}required{% endif %}>
-                        {% endif %}
-                        {% if field.help_text and field.field.widget.input_type != 'checkbox' %}
-                            <p class="text-xs text-brun-400 mt-0.5">{{ field.help_text }}</p>
-                        {% endif %}
-                        {% if field.errors %}
-                            <p class="text-red-600 text-xs mt-1">{{ field.errors.0 }}</p>
-                        {% endif %}
-                    </div>
-                {% endfor %}
-                <button type="submit" class="w-full bg-brun-700 hover:bg-brun-800 text-white font-bold py-2.5 rounded-xl transition-colors shadow-fleur mt-2 text-sm">
-                    Créer mon compte
-                </button>
-            </form>
-
-            <p class="text-center text-sm text-brun-500 mt-5">
-                Déjà inscrit ?
-                <a href="{% url 'accounts:connexion' %}" class="text-brun-700 font-semibold hover:underline">Connectez-vous</a>
-            </p>
+<div class="flex items-center justify-center px-4 py-10" style="min-height:70vh">
+    <div class="w-full" style="max-width:400px">
+        <div class="text-center mb-6">
+            <h1 style="font-size:26px;color:var(--color-text);margin:0 0 6px;letter-spacing:-.02em">Créer un compte</h1>
+            <p style="font-size:13.5px;color:var(--color-neutral-500);margin:0">{{ message_bienvenue }}</p>
         </div>
+
+        <form method="post" class="flex flex-col" style="gap:13px">
+            {% csrf_token %}
+            {% for field in form %}
+                {% if field.field.widget.input_type == 'checkbox' %}
+                    <label class="flex items-start" style="gap:11px;font-size:12.5px;line-height:1.5;color:var(--color-neutral-500)">
+                        <input type="checkbox" name="{{ field.html_name }}" id="{{ field.id_for_label }}" {% if field.value %}checked{% endif %} style="margin-top:3px;accent-color:var(--color-accent)">
+                        <span>{{ field.label }}{% if field.help_text %} — {{ field.help_text }}{% endif %}</span>
+                    </label>
+                {% else %}
+                    <label class="block">
+                        <span class="block mb-1.5" style="font-size:12px;color:var(--color-neutral-500)">{{ field.label }}</span>
+                        <div class="fld">
+                            <i class="ph {% if 'password' in field.name %}ph-lock-simple{% elif field.name == 'email' %}ph-envelope-simple{% elif field.name == 'telephone' %}ph-phone{% else %}ph-user{% endif %}" style="font-size:19px;color:var(--color-neutral-500)"></i>
+                            <input type="{{ field.field.widget.input_type }}" name="{{ field.html_name }}" id="{{ field.id_for_label }}" {% if field.value %}value="{{ field.value }}"{% endif %} placeholder="{{ field.label }}" {% if field.field.required %}required{% endif %}>
+                        </div>
+                        {% if field.help_text %}<p style="font-size:11.5px;color:var(--color-neutral-600);margin-top:4px">{{ field.help_text }}</p>{% endif %}
+                    </label>
+                {% endif %}
+                {% if field.errors %}<p style="color:#ff6b6b;font-size:12px;margin-top:-6px">{{ field.errors.0 }}</p>{% endif %}
+            {% endfor %}
+
+            <button type="submit" class="flex items-center justify-center" style="height:52px;gap:8px;border-radius:14px;background:var(--color-accent);color:#161826;font-size:15.5px;font-weight:600;border:none;font-family:inherit;margin-top:6px;cursor:pointer">Créer mon compte</button>
+        </form>
+
+        <p class="text-center mt-6" style="font-size:13.5px;color:var(--color-neutral-500)">Déjà inscrit&nbsp;? <a href="{% url 'accounts:connexion' %}" style="color:var(--color-accent);font-weight:600;text-decoration:none">Se connecter</a></p>
     </div>
 </div>
 {% endblock %}

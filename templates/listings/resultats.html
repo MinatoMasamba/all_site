@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block titre %}Résultats — Découvrir Kinshasa{% endblock %}
+
+{% block extra_css %}
+<style>
+    .fpill { display:inline-flex; align-items:center; gap:6px; padding:7px 12px; border-radius:10px; font-size:12.5px; font-weight:500; white-space:nowrap; background:color-mix(in srgb,var(--color-accent) 16%,transparent); color:var(--color-accent-300); border:1px solid var(--color-accent); text-decoration:none; }
+    .fpill i { font-size:14px; }
+    .listing-card { display:flex; gap:13px; padding:11px; background:var(--color-surface); border-radius:18px; border:1px solid var(--color-divider); text-decoration:none; }
+    .listing-card:hover { border-color:var(--color-accent); }
+    .no-sb::-webkit-scrollbar { display:none; }
+</style>
+{% endblock %}
+
+{% block contenu %}
+<div class="max-w-3xl mx-auto">
+    <div class="flex items-center gap-3 px-4 sm:px-6 pt-6 pb-3">
+        <a href="{% url 'listings:recherche' %}" class="flex items-center justify-center flex-none no-underline" style="width:40px;height:40px;border-radius:12px;background:var(--color-surface);border:1px solid var(--color-divider);color:var(--color-text);font-size:19px"><i class="ph ph-arrow-left"></i></a>
+        <div class="flex-1 min-w-0">
+            <div style="font-size:17px;font-weight:600;color:var(--color-text)">Résultats</div>
+            <div style="font-size:12px;color:var(--color-neutral-500)">{{ etablissements.count }} lieu{{ etablissements.count|pluralize }}</div>
+        </div>
+        <a href="{% url 'listings:recherche' %}" class="flex items-center justify-center flex-none no-underline" style="width:40px;height:40px;border-radius:12px;background:var(--color-surface);border:1px solid var(--color-divider);color:var(--color-accent);font-size:19px"><i class="ph ph-sliders-horizontal"></i></a>
+    </div>
+
+    {% if terme or categorie_active or commune_active or prix_actif or note_active %}
+    <div class="no-sb flex gap-2 px-4 sm:px-6 pb-4" style="overflow-x:auto;scrollbar-width:none">
+        {% if terme %}<a class="fpill" href="?{% if categorie_active %}categorie={{ categorie_active }}&{% endif %}{% if commune_active %}commune={{ commune_active }}&{% endif %}{% if prix_actif %}prix={{ prix_actif }}&{% endif %}{% if note_active %}note={{ note_active }}{% endif %}"><i class="ph ph-magnifying-glass"></i>{{ terme }}<i class="ph ph-x" style="opacity:.7"></i></a>{% endif %}
+        {% if categorie_active %}{% for cat in categories %}{% if cat.slug == categorie_active %}
+        <a class="fpill" href="?{% if terme %}q={{ terme }}&{% endif %}{% if commune_active %}commune={{ commune_active }}&{% endif %}{% if prix_actif %}prix={{ prix_actif }}&{% endif %}{% if note_active %}note={{ note_active }}{% endif %}">{{ cat.nom }}<i class="ph ph-x" style="opacity:.7"></i></a>
+        {% endif %}{% endfor %}{% endif %}
+        {% if commune_active %}{% for com in communes %}{% if com.id|stringformat:"s" == commune_active %}
+        <a class="fpill" href="?{% if terme %}q={{ terme }}&{% endif %}{% if categorie_active %}categorie={{ categorie_active }}&{% endif %}{% if prix_actif %}prix={{ prix_actif }}&{% endif %}{% if note_active %}note={{ note_active }}{% endif %}">{{ com.nom }}<i class="ph ph-x" style="opacity:.7"></i></a>
+        {% endif %}{% endfor %}{% endif %}
+        {% if prix_actif %}{% for valeur, libelle in tranches_prix %}{% if valeur == prix_actif %}
+        <a class="fpill" href="?{% if terme %}q={{ terme }}&{% endif %}{% if categorie_active %}categorie={{ categorie_active }}&{% endif %}{% if commune_active %}commune={{ commune_active }}&{% endif %}{% if note_active %}note={{ note_active }}{% endif %}">{{ libelle }}<i class="ph ph-x" style="opacity:.7"></i></a>
+        {% endif %}{% endfor %}{% endif %}
+        {% if note_active %}
+        <a class="fpill" href="?{% if terme %}q={{ terme }}&{% endif %}{% if categorie_active %}categorie={{ categorie_active }}&{% endif %}{% if commune_active %}commune={{ commune_active }}&{% endif %}{% if prix_actif %}prix={{ prix_actif }}{% endif %}"><i class="ph-fill ph-star" style="color:#f0c96b"></i>{{ note_active }} +<i class="ph ph-x" style="opacity:.7"></i></a>
+        {% endif %}
+        <a href="{% url 'listings:resultats' %}" style="font-size:12.5px;color:var(--color-neutral-500);text-decoration:underline;align-self:center">Effacer tout</a>
+    </div>
+    {% endif %}
+
+    {% if etablissements %}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 px-4 sm:px-6 pb-8">
+        {% for etab in etablissements %}
+        <a class="listing-card" href="{{ etab.get_absolute_url }}">
+            <div style="width:94px;height:94px;flex:none;border-radius:13px;overflow:hidden;background:var(--color-bg)">
+                {% with image=etab.image_principale %}
+                {% if image %}<img src="{{ image.src }}" alt="{{ etab.nom }}" style="width:100%;height:100%;object-fit:cover">
+                {% else %}<div class="flex items-center justify-center" style="width:100%;height:100%;color:var(--color-neutral-600);font-size:26px"><i class="ph ph-image"></i></div>{% endif %}
+                {% endwith %}
+            </div>
+            <div class="flex-1 min-w-0 flex flex-col" style="gap:3px">
+                <span style="font-size:10.5px;color:var(--color-accent);letter-spacing:.06em;text-transform:uppercase">{{ etab.categorie.nom }}{% if etab.etoiles %} · {{ etab.etoiles }}★{% endif %}</span>
+                <div style="font-size:15.5px;font-weight:600;color:var(--color-text)">{{ etab.nom }}</div>
+                <div class="flex items-center gap-1.5" style="font-size:12.5px;color:var(--color-neutral-500)"><i class="ph-fill ph-map-pin" style="font-size:13px"></i>{{ etab.commune.nom }}</div>
+                <div class="flex items-center justify-between" style="margin-top:auto">
+                    {% if etab.evaluation %}
+                        <span class="flex items-center gap-1" style="font-size:13px;color:#cfd3e5"><i class="ph-fill ph-star" style="color:#f0c96b;font-size:13px"></i>{{ etab.evaluation }} <span style="color:var(--color-neutral-600)">({{ etab.nombre_avis|default:0 }})</span></span>
+                    {% else %}<span></span>{% endif %}
+                    {% if etab.prix_minimum %}<span style="font-size:13.5px;font-weight:600;color:var(--color-accent-400)">dès {{ etab.prix_minimum }} $</span>{% endif %}
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-16 px-4">
+        <i class="ph ph-magnifying-glass" style="font-size:48px;color:var(--color-neutral-700)"></i>
+        <p class="mt-3" style="color:var(--color-neutral-500)">Aucun établissement ne correspond à votre recherche.</p>
+        <a href="{% url 'listings:recherche' %}" class="inline-block mt-4 btn btn-primary">Modifier les filtres</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

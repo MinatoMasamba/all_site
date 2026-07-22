@@ -28,13 +28,23 @@ def _etablissements_geres_par(utilisateur):
     )
 
 
-def galerie(request):
+TRANCHES_PRIX = [
+    ("0-10",  "Moins de 10 $"),
+    ("10-30", "10 $ – 30 $"),
+    ("30-60", "30 $ – 60 $"),
+    ("60-100","60 $ – 100 $"),
+    ("100+",  "Plus de 100 $"),
+]
+
+
+def _etablissements_filtres(request):
     etablissements = Etablissement.objects.filter(statut=Etablissement.Statut.PUBLIE)
 
     terme = request.GET.get("q", "").strip()
     categorie_slug = request.GET.get("categorie", "")
     commune_id = request.GET.get("commune", "")
     prix_tranche = request.GET.get("prix", "")
+    note_min = request.GET.get("note", "")
 
     if terme:
         etablissements = etablissements.filter(
@@ -47,14 +57,6 @@ def galerie(request):
         etablissements = etablissements.filter(categorie__slug=categorie_slug)
     if commune_id:
         etablissements = etablissements.filter(commune_id=commune_id)
-
-    TRANCHES_PRIX = [
-        ("0-10",  "Moins de 10 $"),
-        ("10-30", "10 $ – 30 $"),
-        ("30-60", "30 $ – 60 $"),
-        ("60-100","60 $ – 100 $"),
-        ("100+",  "Plus de 100 $"),
-    ]
     if prix_tranche:
         if prix_tranche == "100+":
             etablissements = etablissements.filter(prix_minimum__gt=100)
@@ -63,18 +65,62 @@ def galerie(request):
             etablissements = etablissements.filter(
                 prix_minimum__gte=lo, prix_minimum__lt=hi
             )
+    if note_min:
+        etablissements = etablissements.filter(evaluation__gte=note_min)
 
-    contexte = {
-        "etablissements": etablissements.select_related("categorie", "commune").prefetch_related("images"),
-        "categories": Categorie.objects.all(),
-        "communes": Commune.objects.all(),
+    filtres = {
         "terme": terme,
         "categorie_active": categorie_slug,
         "commune_active": commune_id,
         "prix_actif": prix_tranche,
-        "tranches_prix": TRANCHES_PRIX,
+        "note_active": note_min,
+    }
+    qs = etablissements.select_related("categorie", "commune").prefetch_related("images")
+    return qs, filtres
+
+
+def galerie(request):
+    """Accueil : mise en avant + populaires, à partir des établissements publiés."""
+    publies = (
+        Etablissement.objects.filter(statut=Etablissement.Statut.PUBLIE)
+        .select_related("categorie", "commune")
+        .prefetch_related("images")
+    )
+    a_la_une = publies.exclude(evaluation__isnull=True).order_by("-evaluation", "-nombre_avis").first()
+    populaires = publies.exclude(pk=a_la_une.pk if a_la_une else None).order_by("-evaluation", "-nombre_avis")[:9]
+
+    contexte = {
+        "categories": Categorie.objects.all(),
+        "a_la_une": a_la_une,
+        "populaires": populaires,
     }
     return render(request, "listings/galerie.html", contexte)
+
+
+def recherche(request):
+    """Formulaire de filtres, avant d'afficher les résultats."""
+    etablissements, filtres = _etablissements_filtres(request)
+    contexte = {
+        "categories": Categorie.objects.all(),
+        "communes": Commune.objects.all(),
+        "tranches_prix": TRANCHES_PRIX,
+        "nb_resultats": etablissements.count(),
+        **filtres,
+    }
+    return render(request, "listings/recherche.html", contexte)
+
+
+def resultats(request):
+    """Liste des établissements correspondant aux filtres choisis."""
+    etablissements, filtres = _etablissements_filtres(request)
+    contexte = {
+        "etablissements": etablissements,
+        "categories": Categorie.objects.all(),
+        "communes": Commune.objects.all(),
+        "tranches_prix": TRANCHES_PRIX,
+        **filtres,
+    }
+    return render(request, "listings/resultats.html", contexte)
 
 
 def detail(request, slug):

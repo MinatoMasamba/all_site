@@ -13,18 +13,18 @@
 
     <!-- Stats grid -->
     <div class="grid grid-cols-2 gap-4 mb-6">
-        <div class="bg-white rounded-2xl border border-brun-200 shadow-fleur p-5 text-center">
+        <div class="bg-brun-50 rounded-2xl border border-brun-200 shadow-fleur p-5 text-center">
             <p class="text-3xl font-extrabold text-brun-800">{{ complets }}</p>
             <p class="text-brun-500 text-xs mt-1 uppercase tracking-wide font-semibold">Établissements complets</p>
         </div>
-        <div class="bg-white rounded-2xl border border-brun-200 shadow-fleur p-5 text-center">
+        <div class="bg-brun-50 rounded-2xl border border-brun-200 shadow-fleur p-5 text-center">
             <p class="text-3xl font-extrabold text-emerald-600">{{ gains_estimes }} $</p>
             <p class="text-brun-500 text-xs mt-1 uppercase tracking-wide font-semibold">Gains estimés</p>
         </div>
     </div>
 
     <!-- Progress bar -->
-    <div class="bg-white rounded-2xl border border-brun-200 shadow-fleur p-5 mb-6">
+    <div class="bg-brun-50 rounded-2xl border border-brun-200 shadow-fleur p-5 mb-6">
         <div class="flex justify-between items-center mb-2">
             <span class="text-sm font-semibold text-brun-700">Progression vers le prochain dollar</span>
             <span class="text-sm font-bold text-brun-800">{{ complets|divisibleby:5|yesno:"5,"|default:"" }}{{ complets }}
@@ -70,7 +70,7 @@
             ➕ Ajouter un établissement
         </a>
         <a href="{% url 'listings:mes_etablissements' %}"
-           class="flex-1 text-center bg-white hover:bg-brun-50 border border-brun-200 text-brun-700 font-semibold py-3 px-6 rounded-full transition-colors">
+           class="flex-1 text-center bg-brun-50 hover:bg-brun-50 border border-brun-200 text-brun-700 font-semibold py-3 px-6 rounded-full transition-colors">
             📋 Mes établissements
         </a>
     </div>

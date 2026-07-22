@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block titre %}Mon compte — Découvrir Kinshasa{% endblock %}
+
+{% block extra_css %}
+<style>
+    .acct-link { display:flex; align-items:center; gap:13px; padding:14px 16px; background:var(--color-surface); border-radius:16px; border:1px solid var(--color-divider); text-decoration:none; color:var(--color-text); }
+    .acct-link:hover { border-color:var(--color-accent); }
+    .acct-link i.leading { font-size:20px; color:var(--color-accent); flex:none; }
+    .acct-link i.trailing { font-size:16px; color:var(--color-neutral-600); margin-left:auto; }
+    .acct-label { font-size:14.5px; font-weight:500; }
+</style>
+{% endblock %}
+
+{% block contenu %}
+<div class="max-w-md mx-auto px-4 sm:px-6 py-8">
+    <div class="flex items-center gap-4 mb-8">
+        <div class="flex items-center justify-center flex-none rounded-2xl" style="width:56px;height:56px;background:var(--color-accent);color:#161826;font-size:24px;font-weight:600">
+            {{ user.username|slice:":1"|upper }}
+        </div>
+        <div class="min-w-0">
+            <div style="font-size:18px;font-weight:600;color:var(--color-text)">{{ user.get_full_name|default:user.username }}</div>
+            <div style="font-size:13px;color:var(--color-neutral-500)">{{ user.get_role_display }}{% if user.email %} · {{ user.email }}{% endif %}</div>
+        </div>
+    </div>
+
+    <div class="flex flex-col gap-2.5">
+        <a class="acct-link" href="{% url 'reservations:mes_reservations' %}"><i class="ph ph-calendar-check leading"></i><span class="acct-label">Mes réservations</span><i class="ph ph-caret-right trailing"></i></a>
+
+        {% if user.est_proprietaire or user.est_mediateur or user.est_gestionnaire %}
+            <a class="acct-link" href="{% url 'listings:mes_etablissements' %}"><i class="ph ph-buildings leading"></i><span class="acct-label">Mes établissements</span><i class="ph ph-caret-right trailing"></i></a>
+        {% endif %}
+
+        {% if user.est_proprietaire or user.est_gestionnaire %}
+            <a class="acct-link" href="{% url 'reservations:reservations_etablissement' %}"><i class="ph ph-clipboard-text leading"></i><span class="acct-label">Réservations reçues</span><i class="ph ph-caret-right trailing"></i></a>
+            <a class="acct-link" href="{% url 'notifications:annonces' %}"><i class="ph ph-megaphone leading"></i><span class="acct-label">Annonces</span><i class="ph ph-caret-right trailing"></i></a>
+        {% endif %}
+
+        {% if user.est_mediateur or user.est_gestionnaire %}
+            <a class="acct-link" href="{% url 'accounts:devenir_mediateur' %}"><i class="ph ph-star leading"></i><span class="acct-label">Mon espace médiateur</span><i class="ph ph-caret-right trailing"></i></a>
+        {% else %}
+            <a class="acct-link" href="{% url 'accounts:devenir_mediateur' %}"><i class="ph ph-handshake leading"></i><span class="acct-label">Devenir médiateur</span><i class="ph ph-caret-right trailing"></i></a>
+        {% endif %}
+
+        {% if not user.est_proprietaire and not user.est_mediateur and not user.est_gestionnaire %}
+            <a class="acct-link" href="{% url 'accounts:inscription_proprietaire' %}"><i class="ph ph-storefront leading"></i><span class="acct-label">Enregistrer mon établissement</span><i class="ph ph-caret-right trailing"></i></a>
+        {% endif %}
+
+        <form method="post" action="{% url 'accounts:deconnexion' %}" class="mt-2">
+            {% csrf_token %}
+            <button type="submit" class="acct-link w-full" style="cursor:pointer;color:#ff6b6b">
+                <i class="ph ph-sign-out leading" style="color:#ff6b6b"></i><span class="acct-label">Déconnexion</span>
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
