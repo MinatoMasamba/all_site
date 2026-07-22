@@ -175,3 +175,16 @@ TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID", "")
 TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN", "")
 TWILIO_WHATSAPP_FROM = os.environ.get("TWILIO_WHATSAPP_FROM", "")
 
+# Notifications push (Web Push) envoyées à l'application installée quand un
+# nouvel établissement est publié — indépendantes de l'email et du WhatsApp.
+# Clés VAPID : générées une fois pour le projet, à conserver telles quelles
+# (regénérer invaliderait tous les abonnements déjà enregistrés).
+VAPID_PUBLIC_KEY = os.environ.get(
+    "VAPID_PUBLIC_KEY",
+    "BKjEG_ut9EV9jwHEZAAD7dJHAKYfHEK4s-jJ75t-XdCXRjvyBhFGiUiNiQSPSTJrPnF5KTSTiv8rXQ1lo-3pGQU",
+)
+VAPID_PRIVATE_KEY = os.environ.get(
+    "VAPID_PRIVATE_KEY", "D7OSdWENJBsrIcyDYa0Ck7UMYuZoCQXfRveJKcj-8Us"
+)
+VAPID_CLAIMS_EMAIL = os.environ.get("VAPID_CLAIMS_EMAIL", "contact@decouvrir-kinshasa.cd")
+

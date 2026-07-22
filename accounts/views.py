@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
@@ -112,4 +113,4 @@ def devenir_mediateur(request):
 
 @login_required
 def compte(request):
-    return render(request, "accounts/compte.html")
+    return render(request, "accounts/compte.html", {"vapid_public_key": settings.VAPID_PUBLIC_KEY})

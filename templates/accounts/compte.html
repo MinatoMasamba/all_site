@@ -9,6 +9,7 @@
     .acct-link i.leading { font-size:20px; color:var(--color-accent); flex:none; }
     .acct-link i.trailing { font-size:16px; color:var(--color-neutral-600); margin-left:auto; }
     .acct-label { font-size:14.5px; font-weight:500; }
+    .section-label { font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--color-neutral-500); margin:22px 0 11px 2px; }
 </style>
 {% endblock %}
 
@@ -45,11 +46,38 @@
         {% if not user.est_proprietaire and not user.est_mediateur and not user.est_gestionnaire %}
             <a class="acct-link" href="{% url 'accounts:inscription_proprietaire' %}"><i class="ph ph-storefront leading"></i><span class="acct-label">Enregistrer mon établissement</span><i class="ph ph-caret-right trailing"></i></a>
         {% endif %}
+    </div>
 
+    <div class="section-label">Préférences</div>
+    <div class="flex flex-col gap-2.5">
+        <button type="button" class="acct-link w-full" style="cursor:pointer" data-theme-toggle>
+            <i class="ph-fill ph-moon leading" data-theme-icon></i><span class="acct-label" data-theme-label>Thème sombre</span>
+            <span class="trailing" style="font-size:12px;color:var(--color-neutral-600)">Changer</span>
+        </button>
+
+        <button type="button" id="pwa-install-btn" class="acct-link w-full" style="cursor:pointer;display:none">
+            <i class="ph ph-device-mobile leading"></i><span class="acct-label">Installer l'application</span><i class="ph ph-caret-right trailing"></i>
+        </button>
+        <div id="pwa-ios-hint" class="acct-link" style="display:none;color:var(--color-neutral-500);font-size:12.5px;line-height:1.5">
+            <i class="ph ph-device-mobile leading"></i>
+            <span>Sur iPhone&nbsp;: ouvrez le menu <i class="ph ph-share"></i> Partager de Safari, puis « Sur l'écran d'accueil ».</span>
+        </div>
+
+        <button type="button" id="push-toggle-btn" class="acct-link w-full" style="cursor:pointer" data-vapid-key="{{ vapid_public_key }}">
+            <i class="ph ph-bell-ringing leading"></i>
+            <span class="flex-1 min-w-0">
+                <span class="acct-label block">Nouveaux établissements</span>
+                <span id="push-toggle-status" style="font-size:12px;color:var(--color-neutral-600)">Notification sur cet appareil quand un nouveau site est ajouté</span>
+            </span>
+            <span id="push-toggle-state" class="trailing" style="font-size:12px;color:var(--color-neutral-600)">Activer</span>
+        </button>
+    </div>
+
+    <div class="flex flex-col gap-2.5" style="margin-top:22px">
         <form method="post" action="{% url 'accounts:deconnexion' %}" class="mt-2">
             {% csrf_token %}
-            <button type="submit" class="acct-link w-full" style="cursor:pointer;color:#ff6b6b">
-                <i class="ph ph-sign-out leading" style="color:#ff6b6b"></i><span class="acct-label">Déconnexion</span>
+            <button type="submit" class="acct-link w-full" style="cursor:pointer;color:var(--color-danger-text)">
+                <i class="ph ph-sign-out leading" style="color:var(--color-danger-text)"></i><span class="acct-label">Déconnexion</span>
             </button>
         </form>
     </div>

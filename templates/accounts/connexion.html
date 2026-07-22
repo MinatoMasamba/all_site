@@ -28,11 +28,11 @@
                         <i class="ph {% if field.name == 'password' %}ph-lock-simple{% else %}ph-user{% endif %}" style="font-size:19px;color:{% if field.name == 'password' %}var(--color-accent){% else %}var(--color-neutral-500){% endif %}"></i>
                         <input type="{{ field.field.widget.input_type }}" name="{{ field.html_name }}" id="{{ field.id_for_label }}" {% if field.value %}value="{{ field.value }}"{% endif %} placeholder="{{ field.label }}" {% if field.field.required %}required{% endif %}>
                     </div>
-                    {% if field.errors %}<p style="color:#ff6b6b;font-size:12px;margin-top:4px">{{ field.errors.0 }}</p>{% endif %}
+                    {% if field.errors %}<p style="color:var(--color-danger-text);font-size:12px;margin-top:4px">{{ field.errors.0 }}</p>{% endif %}
                 </label>
             {% endfor %}
             {% if form.non_field_errors %}
-                <p style="color:#ff6b6b;font-size:13px">{{ form.non_field_errors.0 }}</p>
+                <p style="color:var(--color-danger-text);font-size:13px">{{ form.non_field_errors.0 }}</p>
             {% endif %}
 
             <button type="submit" class="flex items-center justify-center" style="height:52px;gap:8px;border-radius:14px;background:var(--color-accent);color:#161826;font-size:15.5px;font-weight:600;border:none;font-family:inherit;margin-top:6px;cursor:pointer">Se connecter <i class="ph ph-arrow-right"></i></button>

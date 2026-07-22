@@ -5,7 +5,7 @@
 
 {% block extra_css %}
 <style>
-    .svc { display:inline-flex; align-items:center; gap:7px; padding:8px 13px; border-radius:11px; font-size:13px; background:var(--color-surface); color:#cfd3e5; border:1px solid var(--color-divider); }
+    .svc { display:inline-flex; align-items:center; gap:7px; padding:8px 13px; border-radius:11px; font-size:13px; background:var(--color-surface); color:var(--color-neutral-300); border:1px solid var(--color-divider); }
     .svc i { font-size:16px; color:var(--color-accent); }
     .stat-box { flex:1; background:var(--color-surface); border-radius:14px; padding:12px; text-align:center; }
     .carousel-dot { width:8px; height:8px; border-radius:50%; background:var(--color-neutral-800); }
@@ -74,7 +74,7 @@
             </div>
             <h1 style="font-size:26px;line-height:1.15;color:var(--color-text);margin:0 0 8px;letter-spacing:-.02em">{{ etablissement.nom }}</h1>
             {% if etablissement.evaluation %}
-                <div class="flex items-center gap-2" style="font-size:13.5px;color:#cfd3e5">
+                <div class="flex items-center gap-2" style="font-size:13.5px;color:var(--color-neutral-300)">
                     <i class="ph-fill ph-star" style="color:#f0c96b"></i><b style="color:var(--color-text)">{{ etablissement.evaluation }}</b>
                     {% if etablissement.nombre_avis %}<span style="color:var(--color-neutral-600)">({{ etablissement.nombre_avis }} avis)</span>{% endif %}
                 </div>

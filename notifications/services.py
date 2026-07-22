@@ -1,5 +1,6 @@
-"""Envoi des notifications d'offres et de nouveautés par email et WhatsApp."""
+"""Envoi des notifications d'offres et de nouveautés par email, WhatsApp et push."""
 
+import json
 import logging
 
 from django.conf import settings
@@ -126,3 +127,56 @@ def diffuser_annonce(annonce):
             whatsapp_envoyes.add(utilisateur.telephone)
 
     return len(emails_envoyes), len(whatsapp_envoyes)
+
+
+def envoyer_push(abonnement, titre, corps, url="/"):
+    """
+    Envoie une notification push à un seul abonnement. Renvoie False et
+    supprime l'abonnement s'il n'est plus valide (désinstallation, expiration).
+
+    Toute erreur reste locale à cet abonnement : un abonnement corrompu ou un
+    souci réseau ne doit jamais empêcher la publication d'un établissement,
+    ni la notification des autres abonnés.
+    """
+    from pywebpush import WebPushException, webpush
+
+    try:
+        webpush(
+            subscription_info={
+                "endpoint": abonnement.endpoint,
+                "keys": {"p256dh": abonnement.p256dh, "auth": abonnement.auth},
+            },
+            data=json.dumps({"title": titre, "body": corps, "url": url}),
+            vapid_private_key=settings.VAPID_PRIVATE_KEY,
+            vapid_claims={"sub": f"mailto:{settings.VAPID_CLAIMS_EMAIL}"},
+        )
+        return True
+    except WebPushException as exc:
+        statut = exc.response.status_code if exc.response is not None else None
+        if statut in (404, 410):
+            # L'abonnement n'existe plus côté navigateur (désinstallation, expiration).
+            abonnement.delete()
+        else:
+            logger.exception("Échec de l'envoi de la notification push à %s", abonnement.utilisateur)
+        return False
+    except Exception:
+        logger.exception("Erreur inattendue lors de l'envoi de la notification push à %s", abonnement.utilisateur)
+        return False
+
+
+def notifier_nouvel_etablissement(etablissement):
+    """
+    Notifie par push tous les appareils abonnés qu'un nouvel établissement
+    vient d'être publié sur la plateforme.
+    """
+    from .models import PushSubscription
+
+    titre = "🌸 Nouveau sur Découvrir Kinshasa"
+    corps = f"{etablissement.nom} vient d'être ajouté — {etablissement.categorie.nom} à {etablissement.commune.nom}."
+    url = etablissement.get_absolute_url()
+
+    for abonnement in PushSubscription.objects.select_related("utilisateur"):
+        try:
+            envoyer_push(abonnement, titre, corps, url)
+        except Exception:
+            logger.exception("Échec inattendu de la notification push pour %s", abonnement.utilisateur)

@@ -4,6 +4,8 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.text import slugify
 
+from notifications.services import notifier_nouvel_etablissement
+
 from .forms import EtablissementForm, ImageEtablissementFormSet
 from .models import Categorie, Commune, Etablissement
 
@@ -205,6 +207,7 @@ def modifier_etablissement(request, slug):
 def publier_etablissement(request, slug):
     etablissement = get_object_or_404(_etablissements_geres_par(request.user), slug=slug)
     if request.method == "POST":
+        vient_detre_publie = etablissement.statut != Etablissement.Statut.PUBLIE
         if etablissement.statut == Etablissement.Statut.PUBLIE:
             etablissement.statut = Etablissement.Statut.BROUILLON
             messages.info(request, "La fiche a été repassée en brouillon et n'est plus visible publiquement.")
@@ -212,4 +215,6 @@ def publier_etablissement(request, slug):
             etablissement.statut = Etablissement.Statut.PUBLIE
             messages.success(request, "La fiche est maintenant publiée et visible dans la galerie.")
         etablissement.save(update_fields=["statut"])
+        if vient_detre_publie:
+            notifier_nouvel_etablissement(etablissement)
     return redirect("listings:modifier_etablissement", slug=etablissement.slug)

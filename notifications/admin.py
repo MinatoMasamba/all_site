@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils import timezone
 
-from .models import AbonnementNewsletter, Annonce
+from .models import AbonnementNewsletter, Annonce, PushSubscription
 from .services import diffuser_annonce
 
 
@@ -30,3 +30,9 @@ class AnnonceAdmin(admin.ModelAdmin):
             annonce.nombre_emails_envoyes = nb_emails
             annonce.nombre_whatsapp_envoyes = nb_whatsapp
             annonce.save(update_fields=["envoyee_le", "nombre_emails_envoyes", "nombre_whatsapp_envoyes"])
+
+
+@admin.register(PushSubscription)
+class PushSubscriptionAdmin(admin.ModelAdmin):
+    list_display = ("utilisateur", "cree_le")
+    search_fields = ("utilisateur__username", "utilisateur__email")

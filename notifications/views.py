@@ -1,10 +1,14 @@
+import json
+
 from django.contrib import messages
-from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.views.decorators.http import require_POST
 
 from .forms import AbonnementNewsletterForm, AnnonceForm
-from .models import Annonce
+from .models import Annonce, PushSubscription
 from .services import diffuser_annonce
 
 
@@ -86,3 +90,34 @@ def diffuser(request, annonce_id):
             f"Annonce diffusée : {nb_emails} email(s) et {nb_whatsapp} message(s) WhatsApp envoyés.",
         )
     return redirect("notifications:annonces")
+
+
+@login_required
+@require_POST
+def push_subscribe(request):
+    try:
+        payload = json.loads(request.body)
+        endpoint = payload["endpoint"]
+        p256dh = payload["keys"]["p256dh"]
+        auth = payload["keys"]["auth"]
+    except (KeyError, ValueError):
+        return JsonResponse({"ok": False}, status=400)
+
+    PushSubscription.objects.update_or_create(
+        endpoint=endpoint,
+        defaults={"utilisateur": request.user, "p256dh": p256dh, "auth": auth},
+    )
+    return JsonResponse({"ok": True})
+
+
+@login_required
+@require_POST
+def push_unsubscribe(request):
+    try:
+        payload = json.loads(request.body)
+        endpoint = payload["endpoint"]
+    except (KeyError, ValueError):
+        return JsonResponse({"ok": False}, status=400)
+
+    PushSubscription.objects.filter(utilisateur=request.user, endpoint=endpoint).delete()
+    return JsonResponse({"ok": True})

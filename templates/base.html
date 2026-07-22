@@ -5,6 +5,22 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block titre %}Découvrir Kinshasa{% endblock %}</title>
+    <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
+    <meta name="theme-color" content="#161826">
+    <link rel="icon" href="{% static 'icons/favicon-32.png' %}" sizes="32x32">
+    <link rel="icon" href="{% static 'icons/favicon-64.png' %}" sizes="64x64">
+    <link rel="apple-touch-icon" href="{% static 'icons/apple-touch-icon.png' %}">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="D. Kinshasa">
+    <script>
+        (function(){
+            try {
+                var t = localStorage.getItem('theme');
+                if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+            } catch (e) {}
+        })();
+    </script>
     <link rel="stylesheet" href="{% static 'css/nocturne.css' %}">
     <link rel="stylesheet" href="{% static 'vendor/phosphor/regular/style.css' %}">
     <link rel="stylesheet" href="{% static 'vendor/phosphor/fill/style.css' %}">
@@ -129,5 +145,6 @@
     .nav-link { color: var(--color-neutral-400); text-decoration: none; font-size: 14px; font-weight: 500; padding: 6px 12px; border-radius: 999px; }
     .nav-link:hover { color: var(--color-text); background: color-mix(in srgb, var(--color-text) 7%, transparent); }
 </style>
+<script src="{% static 'js/app.js' %}" defer></script>
 </body>
 </html>

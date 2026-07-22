@@ -9,4 +9,6 @@ urlpatterns = [
     path("annonces/", views.annonces, name="annonces"),
     path("annonces/nouvelle/", views.creer_annonce, name="creer_annonce"),
     path("annonces/<int:annonce_id>/diffuser/", views.diffuser, name="diffuser"),
+    path("push/abonner/", views.push_subscribe, name="push_subscribe"),
+    path("push/desabonner/", views.push_unsubscribe, name="push_unsubscribe"),
 ]

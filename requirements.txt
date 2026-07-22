@@ -2,3 +2,4 @@ Django==5.2.15
 pillow==12.2.0
 python-dotenv==1.2.2
 twilio==9.10.9
+pywebpush==2.3.0
